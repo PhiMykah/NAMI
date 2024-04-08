@@ -5,7 +5,8 @@
 #include <cmath>
 #include <numeric>
 #include <iostream>
-#include <bits/stdc++.h>
+#include <algorithm>
+#include <limits.h>
 
 // float vector definition
 typedef std::vector<float> vector;
@@ -43,6 +44,12 @@ enum class DiversitySeed { MEDOID=0, OUTLIER, RANDOM, LIST };
 // Alignment methods used by functions
 enum class AlignMethod { UNI=0, KRON, UNIFORM, KRONECKER };
 
+// Quicksort helper class
+void quicksort(vector &vec, int l_index, int r_index);
+
+// Quicksort that also sorts an index list
+void quicksort(vector &vec, std::vector<int> &indx_vector, int l_index, int r_index);
+
 // 2D-Matrix object
 class Matrix
 {
@@ -61,13 +68,13 @@ public:
 
     // Array member getter
     vec2D GetArray();
+    
+    // Remove vector at index
+    void erase(int);
 
-    // Returns row size
-    int row();
-    
-    // Returns column size
-    int col();
-    
+    // Remove vectors at indicies
+    void erase(std::vector<int>);
+
     // ********************
     // Overloaded Operators
     // ********************
@@ -223,6 +230,7 @@ Matrix pow(const Matrix& x, vector y);
 // Vector-Vector arithmetic
 vector operator+(vector x, vector y);
 vector operator-(vector x, vector y);
+vector pow(vector x, float y);
 
 // Matrix-Constant arithmetic
 Matrix operator+(float x, const Matrix& y);
@@ -249,6 +257,7 @@ Matrix operator <(const Matrix& lhs, const vector rhs);
 Matrix operator >(const Matrix& lhs, const vector rhs);
 Matrix operator <=(const Matrix& lhs, const vector rhs);
 Matrix operator >=(const Matrix& lhs, const vector rhs);
+
 
 
 #endif // !DATA_CONTAINERS_H

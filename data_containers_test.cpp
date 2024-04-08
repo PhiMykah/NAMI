@@ -34,4 +34,39 @@ int main(int argc, char *argv[]) {
         matricies[i].print();
         std::cout << std::endl;
     }
+
+    vector sort{20, 3, 2, 13, 4, 5, 9, 19, 10, 16};
+
+    std::vector<int> indicies;
+    for (int i = 0; i < sort.size(); i++)
+    {
+        indicies.push_back(i);
+    }
+
+    printf("Unsorted List\n");
+    for (int i = 0; i < sort.size(); i++) {
+        printf("%.2f ", sort[i]);
+    }
+    std::cout << std::endl;
+
+    printf("Unsorted indices\n");
+    for (int i = 0; i < sort.size(); i++) {
+        printf("%i ", indicies[i]);
+    }
+    std::cout << std::endl;
+
+    quicksort(sort, indicies, 0, sort.size()-1);
+
+    printf("Sorted List\n");
+    for (int i = 0; i < sort.size(); i++) {
+        printf("%.2f ", sort[i]);
+    }
+    std::cout << std::endl;
+
+    printf("Sorted indices\n");
+    for (int i = 0; i < sort.size(); i++) {
+        printf("%i ", indicies[i]);
+    }
+    std::cout << std::endl;
+
 }

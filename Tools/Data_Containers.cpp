@@ -1,5 +1,99 @@
 #include "Data_Containers.h"
 
+/*
+A basic quicksort function implementation
+
+Parameters
+----------
+vec : vector
+    Vector to sort
+l_index : int
+    Left-most index
+r_index : int
+    Right-most index
+*/
+void quicksort(vector &vec, int l_index, int r_index){
+    int i, j, m_index, pivot;
+    i = l_index;
+    j = r_index;
+    m_index = l_index + (r_index - l_index) / 2;
+    pivot = vec[m_index];
+
+    while(i < r_index || j > l_index){
+        while (vec[i] < pivot) {
+            i++;
+        }
+        while (vec[j] > pivot) {
+            j--;
+        }
+
+        if (i <= j) {
+            std::swap(vec[i],vec[j]);
+            i++;
+            j--;
+
+        } else {
+            if (i < r_index) {
+                quicksort(vec, i, r_index);
+            }
+            if (j > l_index) {
+                quicksort(vec, l_index, j);
+            }
+
+            return;
+        }
+    }
+}
+
+
+/*
+A basic quicksort function implementation
+
+Parameters
+----------
+vec : vector
+    Vector to sort
+indx_vector : std::vector<int>
+    Vector of vec's indicies to track sorting changes
+l_index : int
+    Left-most index
+r_index : int
+    Right-most index
+*/
+void quicksort(vector &vec, std::vector<int> &indx_vector, int l_index, int r_index){
+    int i, j, m_index, pivot;
+    i = l_index;
+    j = r_index;
+    m_index = l_index + (r_index - l_index) / 2;
+    pivot = vec[m_index];
+
+    while(i < r_index || j > l_index){
+        while (vec[i] < pivot) {
+            i++;
+        }
+        while (vec[j] > pivot) {
+            j--;
+        }
+
+        if (i <= j) {
+            std::swap(vec[i],vec[j]);
+            std::swap(indx_vector[i],indx_vector[j]);
+            i++;
+            j--;
+
+        } else {
+            if (i < r_index) {
+                quicksort(vec, indx_vector, i, r_index);
+            }
+            if (j > l_index) {
+                quicksort(vec, indx_vector, l_index, j);
+            }
+
+            return;
+        }
+    }
+}
+
 Matrix::Matrix()
 {
     this->m_array = vec2D {}; 
@@ -41,6 +135,24 @@ vec2D Matrix::GetArray(){
     return this->m_array;
 }
 
+// This doesn't check for invalid index so use wisely
+void Matrix::erase(int index){
+    this->m_array.erase(m_array.begin()+index);
+
+    this->N = m_array.size();
+    this->Flatten();
+}
+
+// This doesn't check for invalid index so use wisely
+void Matrix::erase(std::vector<int> indicies){
+    // Remove the values at those indices of the original matrix
+    for (int i = 0; i < indicies.size(); i++){
+        this->m_array.erase(m_array.begin()+indicies[i]);
+    }
+
+    this->N = m_array.size();
+    this->Flatten();
+}
 
 void Matrix::Flatten(){
     vector flatVec(this->m_array.size()*this->m_array[0].size());
@@ -544,4 +656,14 @@ Matrix pow(float x, const Matrix& y){
 // Raise vector to matrix elements
 Matrix pow(vector x, const Matrix& y){
     return y.Elementwise(cast(x, y), POW);
+}
+
+// Raise vector to constant
+vector pow(vector x, float y){
+    vector newVector;
+    for (int i = 0; i < x.size(); i++) {
+        newVector.push_back(std::pow(x[i],y));
+    }
+
+    return newVector;
 }

@@ -7,8 +7,9 @@ test:
 	g++ -g Tools/BTS.o Tools/Data_Containers.o Tools/Esim_Modules.o main.cpp -o main
 
 datatest:
-	g++ -c Tools/Data_Containers.cpp -o Tools/Data_Containers.o
-	g++ Tools/Data_Containers.o data_containers_test.cpp -o datatest
-
+	g++ -g -c Tools/Data_Containers.cpp -o Tools/Data_Containers.o
+	g++ -g Tools/Data_Containers.o data_containers_test.cpp -o datatest
+	rm Tools/*.o
+	
 clean:
 	rm Tools/*.o

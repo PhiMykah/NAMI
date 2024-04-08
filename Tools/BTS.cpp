@@ -2,6 +2,7 @@
 #include "Esim_Modules.h"
 
 AXIS COL = AXIS::COLUMN; 
+AXIS ROW = AXIS::ROW;
 
 /*
 Mean square deviation (MSD) calculation for n-ary objects.
@@ -50,6 +51,7 @@ float MeanSquareDeviation(Matrix matrix, int n_atoms){
 
 
 /* Condensed version of Mean square deviation (MSD).
+
 Parameters
 ----------
 c_sum : vector of size n_features
@@ -77,6 +79,7 @@ float MSDCondensed(vector c_sum, vector sq_sum, int N, int n_atoms){
 
 
 /* Calculate the extended comparison of a dataset.
+
 Parameters
 ----------
 matrix : Matrix
@@ -94,7 +97,7 @@ N : int, optional
     Number of data points. Defaults to None.
 N_atoms : int, optional
     Number of atoms in the system. Defaults to 1.
-c_threshold : int, optional
+c_threshold : float, optional
     Coincidence threshold. Defaults to None.
 w_factor : {'fraction', 'power_n'}, optional
     Type of weight function that will be used. Defaults to 'fraction'.
@@ -163,7 +166,36 @@ float ExtendedComparison(
 }
 
 
-// Calculate the extended comparison of the column sum dataset
+/* Calculate the extended comparison of the column sum dataset
+
+Parameters
+----------
+c_sum : vector
+    Input column sum vector.
+metric : {'MSD', 'BUB', 'Fai', 'Gle', 'Ja', 'JT', 'RT', 'RR', 'SM', 'SS1', 'SS2'}
+    Metric to use for the extended comparison. Defaults to 'MSD'.
+    Available metrics:
+    Mean square deviation (MSD), Bhattacharyya's U coefficient (BUB),
+    Faiman's coefficient (Fai), Gleason's coefficient (Gle),
+    Jaccard's coefficient (Ja), Jaccard-Tanimoto coefficient (JT),
+    Rogers-Tanimoto coefficient (RT), Russell-Rao coefficient (RR),
+    Simpson's coefficient (SM), Sokal-Sneath 1 coefficient (SS1),
+    Sokal-Sneath 2 coefficient (SS2).
+N : int, optional
+    Number of data points. Defaults to None.
+N_atoms : int, optional
+    Number of atoms in the system. Defaults to 1.
+c_threshold : float, optional
+    Coincidence threshold. Defaults to None.
+w_factor : {'fraction', 'power_n'}, optional
+    Type of weight function that will be used. Defaults to 'fraction'.
+    See `esim_modules.calculate_counters` for more information.
+
+Returns 
+-------
+float
+    Extended comparison value.
+*/
 float ExtendedComparison(
     vector c_sum, Metric metric, 
     int N, int n_atoms, float c_threshold, 
@@ -201,7 +233,39 @@ float ExtendedComparison(
     return 1.0;
 }
 
-// Calculate the extended comparison of the column sum and square column sum of datasets
+
+/* Calculate the extended comparison of the column sum and square column sum of datasets
+
+Parameters
+----------
+c_sum : vector
+    Input column sum vector.
+sq_sum : vector
+    Input square column sum vector.
+metric : {'MSD', 'BUB', 'Fai', 'Gle', 'Ja', 'JT', 'RT', 'RR', 'SM', 'SS1', 'SS2'}
+    Metric to use for the extended comparison. Defaults to 'MSD'.
+    Available metrics:
+    Mean square deviation (MSD), Bhattacharyya's U coefficient (BUB),
+    Faiman's coefficient (Fai), Gleason's coefficient (Gle),
+    Jaccard's coefficient (Ja), Jaccard-Tanimoto coefficient (JT),
+    Rogers-Tanimoto coefficient (RT), Russell-Rao coefficient (RR),
+    Simpson's coefficient (SM), Sokal-Sneath 1 coefficient (SS1),
+    Sokal-Sneath 2 coefficient (SS2).
+N : int, optional
+    Number of data points. Defaults to None.
+N_atoms : int, optional
+    Number of atoms in the system. Defaults to 1.
+c_threshold : float, optional
+    Coincidence threshold. Defaults to None.
+w_factor : {'fraction', 'power_n'}, optional
+    Type of weight function that will be used. Defaults to 'fraction'.
+    See `esim_modules.calculate_counters` for more information.
+
+Returns 
+-------
+float
+    Extended comparison value.
+*/
 float ExtendedComparison(
     vector c_sum, vector sq_sum, 
     Metric metric, int N, int n_atoms,
@@ -215,9 +279,26 @@ float ExtendedComparison(
     return ExtendedComparison(c_sum, metric, N, n_atoms, c_threshold, w_factor);
 }
 
-// Complementary similarity is calculating the similarity of a set 
-// without one object or observation using metrics in the extended comparison.
-// The greater the complementary similarity, the more representative the object is.
+
+/*
+Complementary similarity is calculating the similarity of a set
+without one object or observation using metrics in the extended comparison.
+The greater the complementary similarity, the more representative the object is.
+
+Parameters
+----------
+matrix : Matrix
+    Input data matrix.
+metric : {'MSD', 'RR', 'JT', 'SM', etc}
+    Metric used for extended comparisons. See `extended_comparison` for details.
+N_atoms : int, optional
+    Number of atoms in the system. Defaults to 1.
+
+Returns
+-------
+Matrix
+    Matrix of complementary similarities for each object.
+*/
 Matrix CalculateCompSim(Matrix matrix, Metric metric, int n_atoms){
     if (metric == Metric::MSD) {
         return CSimMSD(matrix, n_atoms);
@@ -227,31 +308,33 @@ Matrix CalculateCompSim(Matrix matrix, Metric metric, int n_atoms){
 
     Matrix sq_data_total = matrix.pow(2);
 
-    vector c_sum_total = matrix.Sum(AXIS::COLUMN);
+    vector c_sum_total = matrix.Sum(COL);
 
-    vector sq_sum_total = sq_data_total.Sum(AXIS::COLUMN); 
+    vector sq_sum_total = sq_data_total.Sum(COL); 
 
     vector values;
     for (int row = 0; row < N; row++){
-        float value = ExtendedComparison(c_sum_total - matrix[row], metric, N-1, n_atoms);
-        values.push_back(value);
+        values.push_back(
+            ExtendedComparison(c_sum_total - matrix[row], metric, N-1, n_atoms)
+        );
     }
 
     return Matrix(vec2D {values});
 }
+
 
 // Simplified complementary similarity calculation if metric is MSD
 Matrix CSimMSD(Matrix matrix, int n_atoms){
     int N = matrix.N;
     Matrix sq_data = matrix.pow(2);
 
-    vector c_sum = matrix.Sum(AXIS::COLUMN);
-    vector sq_sum = sq_data.Sum(AXIS::COLUMN);
+    vector c_sum = matrix.Sum(COL);
+    vector sq_sum = sq_data.Sum(COL);
 
     Matrix comp_csum = c_sum - matrix;
     Matrix comp_sqsum = sq_sum - sq_data;
 
-    Matrix total = vec2D{(2 * ((N-1) * comp_sqsum - comp_csum.pow(2))).Sum(AXIS::ROW)};
+    Matrix total = vec2D{(2 * ((N-1) * comp_sqsum - comp_csum.pow(2))).Sum(ROW)};
 
     Matrix comp_msd = total / std::pow(N-1, 2);
 
@@ -261,8 +344,24 @@ Matrix CSimMSD(Matrix matrix, int n_atoms){
 }
 
 
-// Calculates the medoid of a dataset using the metrics in extended comparison.
-// Medoid is the most representative object of a set.
+/*
+Calculates the medoid of a dataset using the metrics in extended comparison.
+Medoid is the most representative object of a set.
+
+Parameters
+----------
+matrix : Matrix
+    Input data matrix.
+metric : {'MSD', 'RR', 'JT', 'SM', etc}
+    Metric used for extended comparisons. See `extended_comparison` for details.
+N_atoms : int, optional
+    Number of atoms in the system. Defaults to 1.
+
+Returns
+-------
+int
+    The index of the medoid in the dataset.
+*/
 int CalculateMedoid(Matrix matrix, Metric metric, int n_atoms){
     if (metric == Metric::MSD) {
         // Returns the indicies where the maximum value occurs
@@ -273,8 +372,8 @@ int CalculateMedoid(Matrix matrix, Metric metric, int n_atoms){
     }
     int N = matrix.N;
     Matrix sq_data_total = matrix.pow(2);
-    vector c_sum_total = matrix.Sum(AXIS::COLUMN);
-    vector sq_sum_total = sq_data_total.Sum(AXIS::COLUMN);
+    vector c_sum_total = matrix.Sum(COL);
+    vector sq_sum_total = sq_data_total.Sum(COL);
     int index = N + 1;
     int max_dissim = -1;
 
@@ -289,8 +388,25 @@ int CalculateMedoid(Matrix matrix, Metric metric, int n_atoms){
     return index;
 }
 
-// Calculates the outliers of a dataset using the metrics in extended comparison.
-// Outliers are the least representative objects of a set.
+
+/*
+Calculates the outliers of a dataset using the metrics in extended comparison.
+Outliers are the least representative objects of a set.
+
+Parameters
+----------
+matrix : Matrix
+    Input data matrix.
+metric : {'MSD', 'RR', 'JT', 'SM', etc}
+    Metric used for extended comparisons. See `extended_comparison` for details.
+N_atoms : int, optional
+    Number of atoms in the system. Defaults to 1.
+
+Returns
+-------
+int
+    The index of the outlier in the dataset.
+*/
 int CalculateOutlier(Matrix matrix, Metric metric, int n_atoms){
     if (metric == Metric::MSD) {
         // Returns the indicies where the minimum value occurs
@@ -301,8 +417,8 @@ int CalculateOutlier(Matrix matrix, Metric metric, int n_atoms){
     }
     int N = matrix.N;
     Matrix sq_data_total = matrix.pow(2);
-    vector c_sum_total = matrix.Sum(AXIS::COLUMN);
-    vector sq_sum_total = sq_data_total.Sum(AXIS::COLUMN);
+    vector c_sum_total = matrix.Sum(COL);
+    vector sq_sum_total = sq_data_total.Sum(COL);
     int index = N + 1;
     int max_dissim = INT_MAX;
 
@@ -318,22 +434,139 @@ int CalculateOutlier(Matrix matrix, Metric metric, int n_atoms){
 
 }
 
-/*
-// Trims a desired percentage of outliers (most dissimilar) from the dataset 
-// by calculating largest complement similarity.
-Matrix TrimOutliers(
-    Matrix matrix, float n_trimmed, Metric metric, 
-    int n_atoms=1, Criterion criterion = Criterion::COMP_SIM){
 
+/*
+Trims a desired percentage of outliers (most dissimilar) from the dataset 
+by calculating largest complement similarity.
+
+Parameters
+----------
+matrix : Matrix
+    Input data matrix.
+percent_trimmed : float
+    The desired fraction of outliers to be removed.
+metric : {'MSD', 'RR', 'JT', 'SM', etc}
+    Metric used for extended comparisons. See `extended_comparison` for details.
+N_atoms : int
+    Number of atoms in the system.
+criterion : {'comp_sim', 'sim_to_medoid'}, optional
+    Criterion to use for data trimming. Defaults to 'comp_sim'.
+    'comp_sim' removes the most dissimilar objects based on the complement similarity.
+    'sim_to_medoid' removes the most dissimilar objects based on the similarity to the medoid.
+    
+Returns
+-------
+Matrix
+    A matrix with desired fraction of outliers removed.
+
+Notes
+-----
+If the criterion is 'comp_sim', the lowest indices are removed because they are the most outlier.
+However, if the criterion is 'sim_to_medoid', the highest indices are removed because they are farthest from the medoid.
+*/
+Matrix TrimOutliers(
+    Matrix matrix, float percent_trimmed, Metric metric, 
+    int n_atoms, Criterion criterion){
+    
+    int N = matrix.N;
+    int cutoff = int(floor(N * percent_trimmed));
+    if (criterion == Criterion::SIM_TO_MEDOID) {
+        int medoid_index = CalculateMedoid(matrix, metric, n_atoms);
+        vector medoid = matrix[medoid_index];
+        // Remove the values from the medoid index of matrix
+        // np.delete(matrix,medoid_index,axis=0)
+        /*
+        vector values;
+        for (int row = 0; row < N; row++){
+            values.push_back(
+                ExtendedComparison(matrix[row], medoid, metric, n_atoms) // data_type = full?
+            );
+        }
+        // Sort the list (Likely manually implement + std::sort)
+        //sorted = np.argsort(values[:,1])
+        // Collect the indicies of the last cutoff elements of the sorted list
+        //highest_indices = sorted[-cutoff:]
+        // Remove the values at those indices of the original matrix
+        //matrix = np.delete(matrix, highest_indices, axis=0) // Manually implement a delete function
+        */
+    } else {
+        vector c_sum = matrix.Sum(COL);
+        vector sq_sum_total = matrix.pow(2).Sum(COL);
+        vector comp_sims;
+        vector values;
+        for (int row = 0; row < N; row++){
+            vector c = c_sum - matrix[row];
+            vector sq = sq_sum_total - (pow(matrix[row],2));
+            values.push_back(
+                ExtendedComparison(c, sq, metric, N-1, n_atoms)
+            );
+        }
+        // Sort the list (Likely manually implement + std::sort)
+        std::vector<int> lowest_indicies;
+        for (int i = 0; i < values.size(); i++)
+        {
+            lowest_indicies.push_back(i);
+        }
+
+        quicksort(values, lowest_indicies, 0, values.size()-1);
+
+        // Collect the indicies of the first cutoff elements of the sorted list
+        lowest_indicies.erase(lowest_indicies.begin()+cutoff, lowest_indicies.end()); 
+        
+        Matrix newMatrix(matrix.GetArray());
+
+        newMatrix.erase(lowest_indicies);
+
+        return newMatrix;
+    }
 }
 
-// Overloaded version of default TrimOutliers
+/*
+Trims a certain amount (most dissimilar) from the dataset 
+by calculating largest complement similarity.
+
+Parameters
+----------
+matrix : Matrix
+    Input data matrix.
+n_trimmed : int
+    The desired number of outliers to be removed.
+metric : {'MSD', 'RR', 'JT', 'SM', etc}x
+    Metric used for extended comparisons. See `extended_comparison` for details.
+N_atoms : int
+    Number of atoms in the system.
+criterion : {'comp_sim', 'sim_to_medoid'}, optional
+    Criterion to use for data trimming. Defaults to 'comp_sim'.
+    'comp_sim' removes the most dissimilar objects based on the complement similarity.
+    'sim_to_medoid' removes the most dissimilar objects based on the similarity to the medoid.
+    
+Returns
+-------
+Matrix
+    A matrix with desired fraction of outliers removed.
+
+Notes
+-----
+If the criterion is 'comp_sim', the lowest indices are removed because they are the most outlier.
+However, if the criterion is 'sim_to_medoid', the highest indices are removed because they are farthest from the medoid.
+*/
 Matrix TrimOutliers(
     Matrix matrix, int n_trimmed, Metric metric,
-    int n_atoms=1, Criterion criterion = Criterion::COMP_SIM){
-
+    int n_atoms, Criterion criterion){
+    
+    int N = matrix.N;
+    switch (criterion)
+    {
+    case Criterion::SIM_TO_MEDOID:
+        /* code */
+        break;
+    default:
+    case Criterion::COMP_SIM:
+        break;
+    }
 }
 
+/*
 // Selects a diverse subset of the data using the complementary similarity.
 std::vector<int> DiversitySelection(
     Matrix matrix, int percentage, Metric metric,

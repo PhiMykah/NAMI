@@ -1,6 +1,7 @@
 import numpy as np
 from mdance import extended_comparison, calculate_comp_sim
 from mdance.tools.bts import calculate_medoid, calculate_outlier
+from mdance.tools.bts import trim_outliers
 
 def csim(matrix, N_atoms = 1):
     N = len(matrix)
@@ -27,6 +28,10 @@ if __name__ == "__main__":
 
     co_vals = [calculate_outlier(matrix, metric=metric, N_atoms=N_atoms) for metric in metrics]
 
+    toi_vals = [trim_outliers(matrix, 3, metric, N_atoms=N_atoms) for metric in metrics]
+
+    tof_vals = [trim_outliers(matrix, .5, metric, N_atoms=N_atoms) for metric in metrics]
+
     norm_msd = csim(matrix, N_atoms)
 
     print("Extended Comparison")
@@ -48,3 +53,13 @@ if __name__ == "__main__":
     for i in range(len(co_vals)):
         pad = f" " if len(metrics[i]) == 2 else ""
         print(f"Metric {pad}\'{metrics[i]}\':\n {co_vals[i]}")
+
+    print("\nTrim Outliers Integer")
+    for i in range(len(toi_vals)):
+        pad = f" " if len(metrics[i]) == 2 else ""
+        print(f"Metric {pad}\'{metrics[i]}\':\n {toi_vals[i]}")
+
+    print("\nTrim Outliers Float")
+    for i in range(len(tof_vals)):
+        pad = f" " if len(metrics[i]) == 2 else ""
+        print(f"Metric {pad}\'{metrics[i]}\':\n {tof_vals[i]}")
