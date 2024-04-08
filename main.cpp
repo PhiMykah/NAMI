@@ -36,6 +36,8 @@ int main(int argc, char *argv[]) {
     
     int num_metrics = metrics.size();
 
+    printf("\nExtended comparison:\n");
+
     vector ec_results;
 
     for (int i = 0; i < num_metrics; i++)
@@ -45,12 +47,12 @@ int main(int argc, char *argv[]) {
         );
     }
 
-    printf("\nExtended comparison:\n");
-
     for (int i = 0; i < ec_results.size(); i++)
     {
         printf("Metric #%i: %.2f\n", i+1, ec_results[i]);
     }
+
+    printf("\nComplementary Similarity:\n");
     
     Matrix ccs_results;
 
@@ -60,12 +62,42 @@ int main(int argc, char *argv[]) {
         );
     }
 
-    printf("Complementary Similarity:\n");
-
     for (int i = 0; i < ccs_results.N; i++)
     {
         printf("Metric #%i: ", i+1);
         Matrix(vec2D {ccs_results[i]}).print();
         printf("\n");
+    }
+
+    printf("\nCalculate Medoid:\n");
+
+    std::vector<int> cm_results;
+
+    for (int i = 0; i < num_metrics; i++){
+        cm_results.push_back(
+            CalculateMedoid(matrix, metrics[i], n_atoms)
+        );
+    }
+
+    for (int i = 0; i < cm_results.size(); i++)
+    {
+        printf("Metric #%i: ", i+1);
+        printf("%i\n", cm_results[i]);
+    }
+
+    printf("\nCalculate Outlier:\n");
+
+    std::vector<int> co_results;
+
+    for (int i = 0; i < num_metrics; i++){
+        co_results.push_back(
+            CalculateOutlier(matrix, metrics[i], n_atoms)
+        );
+    }
+
+    for (int i = 0; i < co_results.size(); i++)
+    {
+        printf("Metrix #%i: ", i+1);
+        printf("%i\n", co_results[i]);
     }
 }

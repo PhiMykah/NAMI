@@ -260,23 +260,65 @@ Matrix CSimMSD(Matrix matrix, int n_atoms){
     return norm_msd;
 }
 
-/*
+
 // Calculates the medoid of a dataset using the metrics in extended comparison.
 // Medoid is the most representative object of a set.
-int CalculateMedoid(Matrix matrix, Metric metric, int n_atoms = 1){
+int CalculateMedoid(Matrix matrix, Metric metric, int n_atoms){
     if (metric == Metric::MSD) {
-        // Returns the indicies where maximum values occur
+        // Returns the indicies where the maximum value occurs
+        vector csim = vector(CSimMSD(matrix, n_atoms));
+        vector::iterator it = max_element(csim.begin(), csim.end());
+        int index = std::distance(csim.begin(), it);
+        return index;
     }
+    int N = matrix.N;
+    Matrix sq_data_total = matrix.pow(2);
+    vector c_sum_total = matrix.Sum(AXIS::COLUMN);
+    vector sq_sum_total = sq_data_total.Sum(AXIS::COLUMN);
+    int index = N + 1;
+    int max_dissim = -1;
+
+    for (int row = 0; row < N; row++){
+        float value = ExtendedComparison(c_sum_total - matrix[row], metric, N-1, n_atoms);
+        if (value > max_dissim) {
+            max_dissim = value;
+            index = row;
+        }
+    }
+
+    return index;
 }
 
 // Calculates the outliers of a dataset using the metrics in extended comparison.
 // Outliers are the least representative objects of a set.
-int CalculateOutlier(Matrix matrix, Metric metric, int n_atoms = 1){
-        if (metric == Metric::MSD) {
-        // Returns the indicies where maximum values occur
+int CalculateOutlier(Matrix matrix, Metric metric, int n_atoms){
+    if (metric == Metric::MSD) {
+        // Returns the indicies where the minimum value occurs
+        vector csim = vector(CSimMSD(matrix, n_atoms));
+        vector::iterator it = min_element(csim.begin(), csim.end());
+        int index = std::distance(csim.begin(), it);
+        return index;
     }
+    int N = matrix.N;
+    Matrix sq_data_total = matrix.pow(2);
+    vector c_sum_total = matrix.Sum(AXIS::COLUMN);
+    vector sq_sum_total = sq_data_total.Sum(AXIS::COLUMN);
+    int index = N + 1;
+    int max_dissim = INT_MAX;
+
+    for (int row = 0; row < N; row++){
+        float value = ExtendedComparison(c_sum_total - matrix[row], metric, N-1, n_atoms);
+        if (value < max_dissim) {
+            max_dissim = value;
+            index = row;
+        }
+    }
+
+    return index;
+
 }
 
+/*
 // Trims a desired percentage of outliers (most dissimilar) from the dataset 
 // by calculating largest complement similarity.
 Matrix TrimOutliers(

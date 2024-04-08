@@ -5,6 +5,7 @@
 #include <cmath>
 #include <numeric>
 #include <iostream>
+#include <bits/stdc++.h>
 
 // float vector definition
 typedef std::vector<float> vector;
@@ -16,7 +17,7 @@ typedef std::vector<vector> vec2D;
 static const vector EMPTY_VECTOR;
 
 // Axis type for 2D matrix
-enum class AXIS {ROW=0,COLUMN=1, NONE};
+enum class AXIS {COLUMN=0,ROW=1, NONE};
 
 // Metric to use for the extended comparison. Default is 'MSD'.
 //     Available metrics:
