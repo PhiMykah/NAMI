@@ -54,7 +54,7 @@ Parameters
 vec : vector
     Vector to sort
 indx_vector : std::vector<int>
-    Vector of vec's indicies to track sorting changes
+    Vector of vec's indices to track sorting changes
 l_index : int
     Left-most index
 r_index : int
@@ -88,6 +88,41 @@ void quicksort(vector &vec, std::vector<int> &indx_vector, int l_index, int r_in
             }
             if (j > l_index) {
                 quicksort(vec, indx_vector, l_index, j);
+            }
+
+            return;
+        }
+    }
+}
+
+void quicksortMatrix(Matrix &mat, std::vector<int> &scores, int l_index, int r_index){
+    int i, j, m_index;
+    int pivot;
+    i = l_index;
+    j = r_index;
+    m_index = l_index + (r_index - l_index) / 2;
+    pivot = scores[m_index];
+
+    while(i < r_index || j > l_index){
+        while (scores[i] < pivot) {
+            i++;
+        }
+        while (scores[j] > pivot) {
+            j--;
+        }
+
+        if (i <= j) {
+            std::swap(scores[i], scores[j]);
+            mat.vSwap(i, j);
+            i++;
+            j--;
+
+        } else {
+            if (i < r_index) {
+                quicksortMatrix(mat, scores, i, r_index);
+            }
+            if (j > l_index) {
+                quicksortMatrix(mat, scores, l_index, j);
             }
 
             return;
@@ -139,20 +174,38 @@ vec2D Matrix::GetArray(){
 // This doesn't check for invalid index so use wisely
 void Matrix::erase(int index){
     this->m_array.erase(m_array.begin()+index);
-
     this->N = m_array.size();
     this->Flatten();
 }
 
 // This doesn't check for invalid index so use wisely
-void Matrix::erase(std::vector<int> indicies){
+void Matrix::erase(std::vector<int> indices){
+    std::vector<int> scores(this->N);
+    // Create indices list 
+    for (int i = 0; i < this->N; i++){
+        scores[i] = i;
+    }
+
+    // Add infinitely low values
+    for (int i = 0; i < indices.size(); i++){
+        scores[indices[i]] = INT_MIN;
+    }
+
+    quicksortMatrix(*this, scores, 0, this->N-1);
+
     // Remove the values at those indices of the original matrix
-    for (int i = 0; i < indicies.size(); i++){
-        this->m_array.erase(m_array.begin()+indicies[i]);
+    for (int i = 0; i < indices.size(); i++){
+        this->m_array.erase(m_array.begin());
     }
 
     this->N = m_array.size();
     this->Flatten();
+}
+
+void Matrix::vSwap(int l_index, int r_index){
+    vector temp = this->m_array[l_index];
+    this->m_array[l_index] = this->m_array[r_index];
+    this->m_array[r_index] = temp;
 }
 
 void Matrix::Flatten(){

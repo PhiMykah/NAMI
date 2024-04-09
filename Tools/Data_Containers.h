@@ -75,6 +75,7 @@ public:
     // Remove vectors at indicies
     void erase(std::vector<int>);
 
+    void vSwap(int l_index, int r_index);
     // ********************
     // Overloaded Operators
     // ********************
@@ -192,6 +193,8 @@ private:
     vec2D m_array; 
     vector m_flat;
 };
+
+void quicksortMatrix(Matrix &mat, std::vector<int> &scores, int l_index, int r_index);
 
 // *************************
 // * Reshaping and Casting *

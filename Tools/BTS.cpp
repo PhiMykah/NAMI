@@ -364,7 +364,7 @@ int
 */
 int CalculateMedoid(Matrix matrix, Metric metric, int n_atoms){
     if (metric == Metric::MSD) {
-        // Returns the indicies where the maximum value occurs
+        // Returns the indices where the maximum value occurs
         vector csim = vector(CSimMSD(matrix, n_atoms));
         vector::iterator it = max_element(csim.begin(), csim.end());
         int index = std::distance(csim.begin(), it);
@@ -409,7 +409,7 @@ int
 */
 int CalculateOutlier(Matrix matrix, Metric metric, int n_atoms){
     if (metric == Metric::MSD) {
-        // Returns the indicies where the minimum value occurs
+        // Returns the indices where the minimum value occurs
         vector csim = vector(CSimMSD(matrix, n_atoms));
         vector::iterator it = min_element(csim.begin(), csim.end());
         int index = std::distance(csim.begin(), it);
@@ -524,21 +524,21 @@ Matrix TrimOutliers(
         }
 
         // Sort the list
-        std::vector<int> highest_indicies;
+        std::vector<int> highest_indices;
         for (int i = 0; i < values.size(); i++)
         {
-            highest_indicies.push_back(i);
+            highest_indices.push_back(i);
         }
 
-        quicksort(values, highest_indicies, 0, values.size()-1);
+        quicksort(values, highest_indices, 0, values.size()-1);
 
-        // Collect the indicies of the last cutoff elements of the sorted list
-        highest_indicies.erase(highest_indicies.end()-cutoff, highest_indicies.end()); 
+        // Collect the indices of the last cutoff elements of the sorted list
+        highest_indices.erase(highest_indices.end()-cutoff, highest_indices.end()); 
 
         // Remove the values at those indices of the original matrix
         Matrix newMatrix(matrix.GetArray());
 
-        newMatrix.erase(highest_indicies);
+        newMatrix.erase(highest_indices);
 
         return newMatrix;
 
@@ -555,21 +555,21 @@ Matrix TrimOutliers(
             );
         }
         // Sort the list
-        std::vector<int> lowest_indicies;
+        std::vector<int> lowest_indices;
         for (int i = 0; i < values.size(); i++)
         {
-            lowest_indicies.push_back(i);
+            lowest_indices.push_back(i);
         }
 
-        quicksort(values, lowest_indicies, 0, values.size()-1);
+        quicksort(values, lowest_indices, 0, values.size()-1);
 
-        // Collect the indicies of the first cutoff elements of the sorted list
-        lowest_indicies.erase(lowest_indicies.begin()+cutoff, lowest_indicies.end()); 
+        // Collect the indices of the first cutoff elements of the sorted list
+        lowest_indices.erase(lowest_indices.begin()+cutoff, lowest_indices.end()); 
         
         // Remove the values at those indices of the original matrix
         Matrix newMatrix(matrix.GetArray());
 
-        newMatrix.erase(lowest_indicies);
+        newMatrix.erase(lowest_indices);
 
         return newMatrix;
     }
