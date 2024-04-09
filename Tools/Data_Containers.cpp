@@ -61,7 +61,8 @@ r_index : int
     Right-most index
 */
 void quicksort(vector &vec, std::vector<int> &indx_vector, int l_index, int r_index){
-    int i, j, m_index, pivot;
+    int i, j, m_index;
+    float pivot;
     i = l_index;
     j = r_index;
     m_index = l_index + (r_index - l_index) / 2;

@@ -426,7 +426,7 @@ int CalculateOutlier(Matrix matrix, Metric metric, int n_atoms){
         float value = ExtendedComparison(c_sum_total - matrix[row], metric, N-1, n_atoms);
         if (value < max_dissim) {
             max_dissim = value;
-            index = row;
+            index = row;   
         }
     }
 
@@ -470,55 +470,8 @@ Matrix TrimOutliers(
     
     int N = matrix.N;
     int cutoff = int(floor(N * percent_trimmed));
-    if (criterion == Criterion::SIM_TO_MEDOID) {
-        int medoid_index = CalculateMedoid(matrix, metric, n_atoms);
-        vector medoid = matrix[medoid_index];
-        // Remove the values from the medoid index of matrix
-        // np.delete(matrix,medoid_index,axis=0)
-        /*
-        vector values;
-        for (int row = 0; row < N; row++){
-            values.push_back(
-                ExtendedComparison(matrix[row], medoid, metric, n_atoms) // data_type = full?
-            );
-        }
-        // Sort the list (Likely manually implement + std::sort)
-        //sorted = np.argsort(values[:,1])
-        // Collect the indicies of the last cutoff elements of the sorted list
-        //highest_indices = sorted[-cutoff:]
-        // Remove the values at those indices of the original matrix
-        //matrix = np.delete(matrix, highest_indices, axis=0) // Manually implement a delete function
-        */
-    } else {
-        vector c_sum = matrix.Sum(COL);
-        vector sq_sum_total = matrix.pow(2).Sum(COL);
-        vector comp_sims;
-        vector values;
-        for (int row = 0; row < N; row++){
-            vector c = c_sum - matrix[row];
-            vector sq = sq_sum_total - (pow(matrix[row],2));
-            values.push_back(
-                ExtendedComparison(c, sq, metric, N-1, n_atoms)
-            );
-        }
-        // Sort the list (Likely manually implement + std::sort)
-        std::vector<int> lowest_indicies;
-        for (int i = 0; i < values.size(); i++)
-        {
-            lowest_indicies.push_back(i);
-        }
-
-        quicksort(values, lowest_indicies, 0, values.size()-1);
-
-        // Collect the indicies of the first cutoff elements of the sorted list
-        lowest_indicies.erase(lowest_indicies.begin()+cutoff, lowest_indicies.end()); 
-        
-        Matrix newMatrix(matrix.GetArray());
-
-        newMatrix.erase(lowest_indicies);
-
-        return newMatrix;
-    }
+    
+    return TrimOutliers(matrix, cutoff, metric, n_atoms, criterion);
 }
 
 /*
@@ -555,15 +508,72 @@ Matrix TrimOutliers(
     int n_atoms, Criterion criterion){
     
     int N = matrix.N;
-    switch (criterion)
-    {
-    case Criterion::SIM_TO_MEDOID:
-        /* code */
-        break;
-    default:
-    case Criterion::COMP_SIM:
-        break;
+    int cutoff = n_trimmed;
+
+    if (criterion == Criterion::SIM_TO_MEDOID) {
+        int medoid_index = CalculateMedoid(matrix, metric, n_atoms);
+        vector medoid = matrix[medoid_index];
+        // Remove the values from the medoid index of matrix
+        matrix.erase(medoid_index);
+    
+        vector values;
+        for (int row = 0; row < N; row++){
+            values.push_back(
+                ExtendedComparison(matrix[row], medoid, metric, n_atoms) // data_type = full?
+            );
+        }
+
+        // Sort the list
+        std::vector<int> highest_indicies;
+        for (int i = 0; i < values.size(); i++)
+        {
+            highest_indicies.push_back(i);
+        }
+
+        quicksort(values, highest_indicies, 0, values.size()-1);
+
+        // Collect the indicies of the last cutoff elements of the sorted list
+        highest_indicies.erase(highest_indicies.end()-cutoff, highest_indicies.end()); 
+
+        // Remove the values at those indices of the original matrix
+        Matrix newMatrix(matrix.GetArray());
+
+        newMatrix.erase(highest_indicies);
+
+        return newMatrix;
+
+    } else {
+        vector c_sum = matrix.Sum(COL);
+        vector sq_sum_total = matrix.pow(2).Sum(COL);
+        vector comp_sims;
+        vector values;
+        for (int row = 0; row < N; row++){
+            vector c = c_sum - matrix[row];
+            vector sq = sq_sum_total - (pow(matrix[row],2));
+            values.push_back(
+                ExtendedComparison(c, sq, metric, N-1, n_atoms)
+            );
+        }
+        // Sort the list
+        std::vector<int> lowest_indicies;
+        for (int i = 0; i < values.size(); i++)
+        {
+            lowest_indicies.push_back(i);
+        }
+
+        quicksort(values, lowest_indicies, 0, values.size()-1);
+
+        // Collect the indicies of the first cutoff elements of the sorted list
+        lowest_indicies.erase(lowest_indicies.begin()+cutoff, lowest_indicies.end()); 
+        
+        // Remove the values at those indices of the original matrix
+        Matrix newMatrix(matrix.GetArray());
+
+        newMatrix.erase(lowest_indicies);
+
+        return newMatrix;
     }
+
 }
 
 /*
