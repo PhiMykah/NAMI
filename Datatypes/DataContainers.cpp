@@ -1,4 +1,4 @@
-#include "Data_Containers.h"
+#include "DataContainers.h"
 
 /*
 A basic quicksort function implementation
@@ -187,14 +187,14 @@ void Matrix::erase(std::vector<int> indices){
     }
 
     // Add infinitely low values
-    for (int i = 0; i < indices.size(); i++){
+    for (long unsigned int i = 0; i < indices.size(); i++){
         scores[indices[i]] = INT_MIN;
     }
 
     quicksortMatrix(*this, scores, 0, this->N-1);
 
     // Remove the values at those indices of the original matrix
-    for (int i = 0; i < indices.size(); i++){
+    for (long unsigned int i = 0; i < indices.size(); i++){
         this->m_array.erase(m_array.begin());
     }
 
@@ -263,7 +263,7 @@ Matrix Matrix::Elementwise(Matrix x, float (*func)(float, float)) const{
 // Summate all of the matrix's values overall
 float Matrix::Sum(){
     float sum = 0;
-    for (int i = 0; i < this->m_flat.size(); i++)
+    for (long unsigned int i = 0; i < this->m_flat.size(); i++)
     {
         sum += this->m_flat[i];
     }
@@ -334,7 +334,7 @@ void Matrix::push_back(vector x) {
     if (this->M == 0) {
         this->M = x.size();
     }
-    else if (x.size() != this->M) {
+    else if (static_cast<int>(x.size()) != this->M) {
         fprintf(stderr, "Internal Error: Vector of legnth %li cannot be added to matrix of dimensions %i, %i.\n",
                 x.size(), this->N, this->M);
         return;
@@ -409,14 +409,14 @@ Matrix cast(vector vec, const Matrix& source_matrix){
     int M = source_matrix.M;
 
     // Fill vector with more data if less than desired N*M size
-    if (vec.size() < M) {
+    if (static_cast<int>(vec.size()) < M) {
         int v_size = vec.size();
         int i = 0;
-        while (vec.size() < M) {
+        while (static_cast<int>(vec.size()) < M) {
             vec.push_back(vec[i]);
             i = (i + 1) % v_size;
         }
-    } else if (vec.size() > M) {
+    } else if (static_cast<int>(vec.size()) > M) {
         vector newVec;
         for (int i = 0; i < M; i++) {
             newVec.push_back(vec[i]);
@@ -442,7 +442,7 @@ Matrix vectorReshape(vector vec, const Matrix& source_matrix){
     int M = source_matrix.M;
 
     // Reshape from N*M vector to N x M matrix
-    if (vec.size() == N*M) {
+    if (static_cast<int>(vec.size()) == N*M) {
         vec2D newArray;
         for (int row = 0; row < N; row++) {
 
@@ -531,7 +531,7 @@ vector operator+(vector x, vector y){
         return x;
     }
 
-    for (int i = 0; i < x.size(); i++) {
+    for (unsigned long int i = 0; i < x.size(); i++) {
         newVector.push_back(x[i] + y[i]);
     }
 
@@ -576,7 +576,7 @@ vector operator-(vector x, vector y){
         return x;
     }
 
-    for (int i = 0; i < x.size(); i++) {
+    for (unsigned long int i = 0; i < x.size(); i++) {
         newVector.push_back(x[i] - y[i]);
     }
 
@@ -715,7 +715,7 @@ Matrix pow(vector x, const Matrix& y){
 // Raise vector to constant
 vector pow(vector x, float y){
     vector newVector;
-    for (int i = 0; i < x.size(); i++) {
+    for (unsigned long int i = 0; i < x.size(); i++) {
         newVector.push_back(std::pow(x[i],y));
     }
 

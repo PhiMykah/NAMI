@@ -1,7 +1,7 @@
 import numpy as np
 from mdance import extended_comparison, calculate_comp_sim
 from mdance.tools.bts import calculate_medoid, calculate_outlier
-from mdance.tools.bts import trim_outliers
+from mdance.tools.bts import trim_outliers, diversity_selection
 
 def csim(matrix, N_atoms = 1):
     N = len(matrix)
@@ -31,6 +31,8 @@ if __name__ == "__main__":
     toi_vals = [trim_outliers(matrix, 3, metric, N_atoms=N_atoms) for metric in metrics]
 
     tof_vals = [trim_outliers(matrix, .5, metric, N_atoms=N_atoms) for metric in metrics]
+
+    ds_vals = [diversity_selection(matrix, 50, metric, start='medoid', N_atoms=N_atoms) for metric in metrics]
 
     norm_msd = csim(matrix, N_atoms)
 
@@ -63,3 +65,8 @@ if __name__ == "__main__":
     for i in range(len(tof_vals)):
         pad = f" " if len(metrics[i]) == 2 else ""
         print(f"Metric {pad}\'{metrics[i]}\':\n {tof_vals[i]}")
+
+    print("\nDiversity Selection")
+    for i in range(len(ds_vals)):
+        pad = f" " if len(metrics[i]) == 2 else ""
+        print(f"Metric {pad}\'{metrics[i]}\':\n {ds_vals[i]}")

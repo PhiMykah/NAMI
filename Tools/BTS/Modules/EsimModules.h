@@ -2,7 +2,7 @@
 #define ESIM_MODULES_H
 #include <map>
 #include <string>
-#include "Data_Containers.h"
+#include "../../../Datatypes/DataContainers.h"
 
 struct Counters
 {   
@@ -10,7 +10,7 @@ struct Counters
             float total_dis_, float total_w_dis_, float p_, float w_p_)
     {
         a = a_; w_a = w_a_;
-        d = d_; w_d = w_d;
+        d = d_; w_d = w_d_;
         total_sim = total_sim_; total_w_sim = total_w_sim_;
         total_dis = total_dis_; total_w_dis = total_w_dis_;
         p = p_; w_p = w_p_;

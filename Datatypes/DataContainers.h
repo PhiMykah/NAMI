@@ -7,6 +7,7 @@
 #include <iostream>
 #include <algorithm>
 #include <limits.h>
+#include <cstdlib>
 
 // float vector definition
 typedef std::vector<float> vector;

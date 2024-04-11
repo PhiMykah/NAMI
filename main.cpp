@@ -1,6 +1,4 @@
-#include <iostream>
-#include <string>
-#include "Tools/BTS.h"
+#include "main.h"
 
 void OutputResults(
     std::string title, Matrix matrix, std::vector<Metric> metrics,
@@ -9,13 +7,13 @@ void OutputResults(
     printf("%s:\n", title.c_str());
     vector results;
 
-    for (int i = 0; i < metrics.size(); i++) {
+    for (long unsigned int i = 0; i < metrics.size(); i++) {
         results.push_back(test(matrix, metrics[i], n_atoms));
     }
 
-    for (int i = 0; i < results.size(); i++)
+    for (long unsigned int i = 0; i < results.size(); i++)
     {
-        printf("Metric #%i: %.2f\n", i+1, results[i]);
+        printf("Metric #%i: %.2f\n", static_cast<int>(i+1), results[i]);
     }
     printf("\n");
 }
@@ -27,13 +25,13 @@ void OutputResults(
     printf("%s:\n", title.c_str());
     vector results;
 
-    for (int i = 0; i < metrics.size(); i++) {
+    for (long unsigned int i = 0; i < metrics.size(); i++) {
         results.push_back(test(matrix, metrics[i], N, n_atoms, 0, WFactor::FRACTION));
     }
 
-    for (int i = 0; i < results.size(); i++)
+    for (long unsigned int i = 0; i < results.size(); i++)
     {
-        printf("Metric #%i: %.2f\n", i+1, results[i]);
+        printf("Metric #%i: %.2f\n", static_cast<int>(i+1), results[i]);
     }
     printf("\n");
 }
@@ -45,7 +43,7 @@ void OutputResults(
     printf("%s:\n", title.c_str());
     Matrix results;
 
-    for (int i = 0; i < metrics.size(); i++) {
+    for (long unsigned int i = 0; i < metrics.size(); i++) {
         results.push_back(test(matrix, metrics[i], n_atoms));
     }
 
@@ -66,13 +64,13 @@ void OutputResults(
     printf("%s:\n", title.c_str());
     std::vector<Matrix> results;
 
-    for (int i = 0; i < metrics.size(); i++) {
+    for (long unsigned int i = 0; i < metrics.size(); i++) {
         results.push_back(test(matrix, percent_trimmed, metrics[i], n_atoms, criterion));
     }
 
-    for (int i = 0; i < results.size(); i++)
+    for (long unsigned int i = 0; i < results.size(); i++)
     {
-        printf("Metric #%i:\n", i+1);
+        printf("Metric #%i:\n", static_cast<int>(i+1));
         results[i].print();
         printf("\n");
     }
@@ -112,8 +110,6 @@ int main(int argc, char *argv[]) {
         Metric::GLE, Metric::JA, Metric::JT, 
         Metric::RT, Metric::RR, Metric::SM, 
         Metric::SS1, Metric::SS2};
-    
-    int num_metrics = metrics.size();
     
     std::vector<std::string> tests = {
         "Extended Comparison",

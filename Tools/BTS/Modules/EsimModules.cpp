@@ -1,4 +1,4 @@
-#include "Esim_Modules.h"
+#include "EsimModules.h"
 
 /*
 Calculate 1-similarity, 0-similarity, and dissimilarity counters
@@ -33,7 +33,7 @@ counters : Counters
     Struct object with the weighted and non-weighted counters.
 */
 Counters CalculateCounters(Matrix c_total, int n_objects, float c_threshold, int w_factor){
-    if (0 < c_threshold < 1) { c_threshold *= n_objects; } 
+    if ((0 < c_threshold) && (c_threshold < 1)) { c_threshold *= n_objects; } 
     else {
         switch ((int) c_threshold)
         {
