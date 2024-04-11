@@ -24,7 +24,7 @@ std::vector<int> DiversitySelection(
     Matrix matrix, int percentage, Metric metric,
     DiversitySeed start, int n_atoms)
 {
-    //int selected_n;
+    std::vector<int> selected_n;
     int n_total = matrix.N;
     std::vector<int> total_indices;
     for (int i = 0; i < n_total; i++)
@@ -32,20 +32,18 @@ std::vector<int> DiversitySelection(
         total_indices.push_back(i);
     }
 
-    // if (start == DiversitySeed::OUTLIER){
-    //     int seed = CalculateOutlier(matrix, metric, n_atoms);
-    //     selected_n = seed;
-    // } else if (start == DiversitySeed::RANDOM){
-    //     int seed = rand() % n_total;
-    //     selected_n = seed;
-    // } else {
-    //     int seed = CalculateMedoid(matrix, metric, n_atoms);
-    //     selected_n = seed;
-    // }
-
-    //int N = 1;
+    if (start == DiversitySeed::OUTLIER){
+        int seed = CalculateOutlier(matrix, metric, n_atoms);
+        selected_n.assign({seed});
+    } else if (start == DiversitySeed::RANDOM){
+        int seed = rand() % n_total;
+        selected_n.assign({seed});
+    } else {
+        int seed = CalculateMedoid(matrix, metric, n_atoms);
+        selected_n.assign({seed});
+    }
      
-    return total_indices; // Placeholder return
+    return DiversitySelection(matrix, percentage, metric, selected_n, n_atoms);
 }
 
 /* Selects a diverse subset of the data using the complementary similarity.
@@ -58,8 +56,8 @@ percentage : int
     Percentage of the data to select.
 metric : {'MSD', 'RR', 'JT', 'SM', etc}
     Metric used for extended comparisons. See `extended_comparison` for details.
-start : list
-    Seed of diversity selection.
+start : std::vector<int>
+    Seed vector of diversity selection.
 N_atoms : int, optional
     Number of atoms in the system. Defaults to 1.
 
@@ -71,17 +69,21 @@ list
 std::vector<int> DiversitySelection(
     Matrix matrix, int percentage, Metric metric,
     std::vector<int> start, int n_atoms)
-{
-    std::vector<int> selected_n;
+{   
+    // Variable declarations 
+    std::vector<int> selected_n = start;
+    std::vector<int> select_from_n;
+    int new_index_n;
+    vector sq_selection_condensed;
     int n_total = matrix.N;
     std::vector<int> total_indices;
+
     for (int i = 0; i < n_total; i++)
     {
         total_indices.push_back(i);
     }
-    selected_n = start;
 
-    // int N = selected_n.size(); 
+    int N = static_cast<int>(selected_n.size()); 
     int n_max = int(floor(n_total * percentage / 100));
 
     if (n_max > n_total){n_max = n_total;}
@@ -95,26 +97,47 @@ std::vector<int> DiversitySelection(
     vector selected_condensed = selection.Sum(COL);
 
     if (metric == Metric::MSD) {
-        Matrix sq_selection = selection.pow(2);
-        vector sq_selection_condensed = sq_selection.Sum(AXIS::COLUMN);
-        while (static_cast<int>(selected_n.size()) < n_max){
-            //select_from_n = np.delete(total_indices, selected_n)
+            Matrix sq_selection = selection.pow(2);
+            vector sq_selection_condensed = sq_selection.Sum(COL);
+    }
+    while (static_cast<int>(selected_n.size()) < n_max){
+        //select_from_n = np.delete(total_indices, selected_n)
+        total_indices.erase(std::remove_if(total_indices.begin(), total_indices.end(), 
+        [total_indices](int val)->bool{ 
+            for (long unsigned int i = 0; i < total_indices.size(); i++) {
+                if (val == total_indices[i]) {return true;}
+                } return false; 
+            }), total_indices.end());
+        select_from_n = total_indices;
+        
+        if (metric == Metric::MSD){
             // new_index_n = get_new_index_n(matrix, metric=metric, selected_condensed,
             //                               sq_selected_condensed, N, 
             //                               select_from_n, n_atoms)
+            new_index_n = GetNewIndexN(
+                matrix, metric, selected_condensed, 
+                sq_selection_condensed, N, select_from_n, n_atoms);
+
             // sq_selected_condensed += matrix[new_index_n] ** 2
-        }
-    } else { 
-        while (static_cast<int>(selected_n.size()) < n_max){
+            sq_selection_condensed = sq_selection_condensed + pow(matrix[new_index_n], 2);
+        } else {
             // new_index_n = get_new_index_n(matrix, metric, selected_condensed, 
             //                               N, select_from_n)
-        }
-    }
-    // selected_condensed += matrix[new_index_n]
-    // selected_n.append(new_index_n)
-    // n = len(selected_n)
-    
-    // return selected_n;
+            new_index_n = GetNewIndexN(
+                matrix, metric, selected_condensed, 
+                N, select_from_n, n_atoms);
 
-    return total_indices; // Placeholder return
+        }
+        // selected_condensed += matrix[new_index_n]
+        selected_condensed = selected_condensed + matrix[new_index_n];
+
+        // selected_n.append(new_index_n)
+        selected_n.push_back(new_index_n);
+
+        // n = len(selected_n)
+        N = static_cast<int>(selected_n.size());
+    }
+
+    
+    return selected_n;
 }

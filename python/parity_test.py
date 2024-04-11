@@ -3,22 +3,21 @@ from mdance import extended_comparison, calculate_comp_sim
 from mdance.tools.bts import calculate_medoid, calculate_outlier
 from mdance.tools.bts import trim_outliers, diversity_selection
 
-def csim(matrix, N_atoms = 1):
-    N = len(matrix)
-    sq_data = matrix ** 2
-    c_sum = np.sum(matrix, axis=0)
-    sq_sum = np.sum(sq_data, axis=0)
-    comp_csum = c_sum - matrix
-    comp_sqsum = sq_sum - sq_data
-    comp_msd = np.sum(2 * ((N-1) * comp_sqsum - comp_csum ** 2), axis=1) / (N-1)**2
-    norm_msd = comp_msd/N_atoms
-    return norm_msd
+metrics = ['MSD', 'BUB', 'Fai', 'Gle', 'Ja', 'JT', 'RT', 'RR', 'SM', 'SS1', 'SS2']
+
+def output_results(title : str, results : list):
+    print(f"{title}:")
+    for i in range(len(results)):
+        pad = f" " if len(metrics[i]) == 2 else ""
+        print(f"Metric {pad}\'{metrics[i]}\': {results[i]}")
+    print("\n")
 
 if __name__ == "__main__":
     matrix = np.arange(1,26).reshape(5,5)
-    
+    int_trimmed = 3
+    float_trimmed = .5
     N_atoms = 10
-    metrics = ['MSD', 'BUB', 'Fai', 'Gle', 'Ja', 'JT', 'RT', 'RR', 'SM', 'SS1', 'SS2']
+    percentage = 75
 
     ec_vals = [extended_comparison(matrix, metric=metric, N_atoms=N_atoms) for metric in metrics]
 
@@ -28,45 +27,30 @@ if __name__ == "__main__":
 
     co_vals = [calculate_outlier(matrix, metric=metric, N_atoms=N_atoms) for metric in metrics]
 
-    toi_vals = [trim_outliers(matrix, 3, metric, N_atoms=N_atoms) for metric in metrics]
+    toi_vals = [trim_outliers(matrix, int_trimmed, metric, N_atoms=N_atoms) for metric in metrics]
 
-    tof_vals = [trim_outliers(matrix, .5, metric, N_atoms=N_atoms) for metric in metrics]
+    tof_vals = [trim_outliers(matrix, float_trimmed, metric, N_atoms=N_atoms) for metric in metrics]
 
-    ds_vals = [diversity_selection(matrix, 50, metric, start='medoid', N_atoms=N_atoms) for metric in metrics]
+    # dsm_vals = [diversity_selection(matrix, percentage, metric, start='medoid', N_atoms=N_atoms) for metric in metrics]
 
-    norm_msd = csim(matrix, N_atoms)
+    # dso_vals = [diversity_selection(matrix, percentage, metric, start='outlier', N_atoms=N_atoms) for metric in metrics]
 
-    print("Extended Comparison")
-    for i in range(len(ec_vals)):
-        pad = f" " if len(metrics[i]) == 2 else ""
-        print(f"Metric {pad}\'{metrics[i]}\': {ec_vals[i]}")
+    # dsr_vals = [diversity_selection(matrix, percentage, metric, start='random', N_atoms=N_atoms) for metric in metrics]
+    
+    dsl_vals = [diversity_selection(matrix, percentage, metric, start=[0, 2, 4], N_atoms=N_atoms) for metric in metrics]  # type: ignore
 
-    print("\nCalculate Complementary Similarity")
-    for i in range(len(ccs_vals)):
-        pad = f" " if len(metrics[i]) == 2 else ""
-        print(f"Metric {pad}\'{metrics[i]}\':\n {ccs_vals[i]}")
+    tests : list[tuple] = [
+        ("Extended Comparison", ec_vals),
+        ("Calculate Complementary Similarity", ccs_vals),
+        ("Calculate Medoid", cm_vals),
+        ("Calculate Outlier", co_vals),
+        ("Trim Outliers Integer", toi_vals),
+        ("Trim Outliers Float", tof_vals),
+        # ("Diversity Selection + NewIndex (Medoid)", dsm_vals),
+        # ("Diversity Selection + NewIndex (Outlier)", dso_vals),
+        # ("Diversity Selection + NewIndex (Random)", dsr_vals),
+        ("Diversity Selection + NewIndex (0, 2 , 4)", dsl_vals),
+    ]
 
-    print("\nCalculate Medoid")
-    for i in range(len(cm_vals)):
-        pad = f" " if len(metrics[i]) == 2 else ""
-        print(f"Metric {pad}\'{metrics[i]}\':\n {cm_vals[i]}")
-
-    print("\nCalculate Outlier")
-    for i in range(len(co_vals)):
-        pad = f" " if len(metrics[i]) == 2 else ""
-        print(f"Metric {pad}\'{metrics[i]}\':\n {co_vals[i]}")
-
-    print("\nTrim Outliers Integer")
-    for i in range(len(toi_vals)):
-        pad = f" " if len(metrics[i]) == 2 else ""
-        print(f"Metric {pad}\'{metrics[i]}\':\n {toi_vals[i]}")
-
-    print("\nTrim Outliers Float")
-    for i in range(len(tof_vals)):
-        pad = f" " if len(metrics[i]) == 2 else ""
-        print(f"Metric {pad}\'{metrics[i]}\':\n {tof_vals[i]}")
-
-    print("\nDiversity Selection")
-    for i in range(len(ds_vals)):
-        pad = f" " if len(metrics[i]) == 2 else ""
-        print(f"Metric {pad}\'{metrics[i]}\':\n {ds_vals[i]}")
+    for test in tests:
+        output_results(test[0], test[1])

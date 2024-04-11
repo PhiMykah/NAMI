@@ -17,4 +17,26 @@
 #include "Tools/BTS/NewIndex.h"
 #include "Tools/BTS/Align.h"
 
+void OutputResults(
+    std::string title, Matrix matrix, std::vector<Metric> metrics,
+    int n_atoms, float (*test)(Matrix, Metric, int));
+
+void OutputResults(
+    std::string title, Matrix matrix, std::vector<Metric> metrics,
+    int N, int n_atoms, float (*test)(Matrix, Metric, int, int, float, WFactor));
+
+void OutputResults(
+    std::string title, Matrix matrix, std::vector<Metric> metrics,
+    int n_atoms, Matrix (*test)(Matrix, Metric, int));
+
+template <typename T> void OutputResults(
+    std::string title, Matrix matrix, std::vector<Metric> metrics,
+    float percent_trimmed, int n_atoms, T criterion, 
+    Matrix (*test)(Matrix, float, Metric, int, T));
+
+template <typename T> void OutputResults(
+    std::string title, Matrix matrix, std::vector<Metric> metrics,
+    int percentage, int n_atoms, T start,
+    std::vector<int> (*test)(Matrix, int, Metric, T, int));
+
 #endif // !MAIN_H

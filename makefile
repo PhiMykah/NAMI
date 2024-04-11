@@ -10,7 +10,7 @@ MOD = $(BTS_PATH)/Modules
 # ---------
 
 CXX=g++
-CXXFLAGS= -g -Wall $(INC_PARAMS)
+CXXFLAGS= -g -Wall -std=c++11
 DC = DataContainers
 ES = EsimModules
 INCLUDES = Datatypes/$(DC).o $(MOD)/$(ES).o
@@ -67,21 +67,21 @@ $(ES).o: Datatypes/$(DC).o
 # Mean Squared Deviation Object
 # Requires:
 #	- Default includes
-$(MSD).o: $(INCLUDES) # $(MSD).cpp $(MSD).h
+$(MSD).o: $(INCLUDES)
 	$(CXX) $(CXXFLAGS) -c $(BTS_PATH)/$(MSD).cpp -o $(BTS_PATH)/$(MSD).o
 
 # Extended Comparison Object
 # Requires:
 # 	- Mean Square Deviation
 #	- Default includes
-$(EC).o: $(MSD).o $(INCLUDES) # $(EC).cpp $(EC).h 
+$(EC).o: $(MSD).o $(INCLUDES)
 	$(CXX) $(CXXFLAGS) -c $(BTS_PATH)/$(EC).cpp -o $(BTS_PATH)/$(EC).o
 
 # Complimentary Similarity Object
 # Requires:
 # 	- Extended Comparison
 #	- Default includes
-$(CS).o: $(EC).o $(INCLUDES) # $(CS).cpp $(CS).h
+$(CS).o: $(EC).o $(INCLUDES)
 	$(CXX) $(CXXFLAGS) -c $(BTS_PATH)/$(CS).cpp -o $(BTS_PATH)/$(CS).o
 
 # Medoid Calculations Object
@@ -89,7 +89,7 @@ $(CS).o: $(EC).o $(INCLUDES) # $(CS).cpp $(CS).h
 # 	- Extended Comparison
 #	- Complimentary Similarities
 #	- Default includes
-$(MED).o:  $(EC).o $(CS).o $(INCLUDES) # $(MED).cpp $(MED).h 
+$(MED).o:  $(EC).o $(CS).o $(INCLUDES)
 	$(CXX) $(CXXFLAGS) -c $(BTS_PATH)/$(MED).cpp -o $(BTS_PATH)/$(MED).o
 
 # Outlier Trimming and Calculations Object
@@ -97,21 +97,23 @@ $(MED).o:  $(EC).o $(CS).o $(INCLUDES) # $(MED).cpp $(MED).h
 # 	- Extended Comparison
 #	- Complimentary Similarities
 #	- Default includes
-$(OUTL).o: $(EC).o $(CS).o $(INCLUDES) # $(OUTL).cpp $(OUTL).h 
+$(OUTL).o: $(EC).o $(CS).o $(INCLUDES) 
 	$(CXX) $(CXXFLAGS) -c $(BTS_PATH)/$(OUTL).cpp -o $(BTS_PATH)/$(OUTL).o
 
 # Diversity Selection Object
 # Requires:
 # 	- Outlier
 #	- Medoid
+#	- Get New Index N
 #	- Default includes
-$(DS).o: $(OUTL).o $(MED).o $(INCLUDES) # $(DS).cpp $(DS).h
+$(DS).o: $(OUTL).o $(MED).o $(NI).o $(INCLUDES)
 	$(CXX) $(CXXFLAGS) -c $(BTS_PATH)/$(DS).cpp -o $(BTS_PATH)/$(DS).o
 
 # Get New Index N Object
 # Requires:
+# 	- Extended comparison
 #	- Default includes
-$(NI).o: $(INCLUDES)
+$(NI).o: $(EC).o $(INCLUDES)
 	$(CXX) $(CXXFLAGS) -c $(BTS_PATH)/$(NI).cpp -o $(BTS_PATH)/$(NI).o
 
 # Alignment Operations Object

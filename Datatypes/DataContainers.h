@@ -197,6 +197,10 @@ private:
 
 void quicksortMatrix(Matrix &mat, std::vector<int> &scores, int l_index, int r_index);
 
+// ********************
+// * Lambda Functions *
+// ********************
+
 // *************************
 // * Reshaping and Casting *
 // *************************

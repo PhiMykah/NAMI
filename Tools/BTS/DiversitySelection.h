@@ -3,6 +3,7 @@
 #include "BTS.h"
 #include "Outlier.h"
 #include "Medoid.h"
+#include "NewIndex.h"
 
 // Selects a diverse subset of the data using the complementary similarity.
 std::vector<int> DiversitySelection(
