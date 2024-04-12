@@ -2,6 +2,7 @@ import numpy as np
 from mdance import extended_comparison, calculate_comp_sim
 from mdance.tools.bts import calculate_medoid, calculate_outlier
 from mdance.tools.bts import trim_outliers, diversity_selection
+from mdance.tools.bts import align_traj, equil_align
 
 metrics = ['MSD', 'BUB', 'Fai', 'Gle', 'Ja', 'JT', 'RT', 'RR', 'SM', 'SS1', 'SS2']
 
@@ -39,6 +40,10 @@ if __name__ == "__main__":
     
     dsl_vals = [diversity_selection(matrix, percentage, metric, start=[0, 2, 4], N_atoms=N_atoms) for metric in metrics]  # type: ignore
 
+    atu_vals = [align_traj(matrix, N_atoms, align_method='uni')]
+
+    atk_vals = [align_traj(matrix, N_atoms, align_method='kron')]
+
     tests : list[tuple] = [
         ("Extended Comparison", ec_vals),
         ("Calculate Complementary Similarity", ccs_vals),
@@ -50,6 +55,8 @@ if __name__ == "__main__":
         # ("Diversity Selection + NewIndex (Outlier)", dso_vals),
         # ("Diversity Selection + NewIndex (Random)", dsr_vals),
         ("Diversity Selection + NewIndex (0, 2 , 4)", dsl_vals),
+        # ("Align Trajectory Uniform", atu_vals),
+        # ("Align Trajectory Kronecker", atk_vals),
     ]
 
     for test in tests:

@@ -31,7 +31,7 @@ int GetNewIndexN(Matrix matrix, Metric metric, vector select_condensed,
     int min_value = INT_MIN;
     int index = matrix.N + 1;
 
-    for (long unsigned int i; i < select_from_n.size(); i++){
+    for (long unsigned int i = 0; i < select_from_n.size(); i++){
         // The extended comparison call may not be the right one here, check to see
         sim_index = ExtendedComparison(
             select_condensed + matrix[i], metric, n_total, n_atoms
@@ -81,7 +81,7 @@ int GetNewIndexN(Matrix matrix, Metric metric, vector select_condensed,
     int min_value = INT_MIN;
     int index = matrix.N + 1;
 
-    for (long unsigned int i; i < select_from_n.size(); i++){
+    for (long unsigned int i = 0; i < select_from_n.size(); i++){
         // The extended comparison call may not be the right one here, check to see
         sim_index = ExtendedComparison(
             vector(select_condensed + matrix[i]), 
