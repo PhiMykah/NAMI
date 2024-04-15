@@ -4,7 +4,7 @@
 DT = Datatypes
 BTS_PATH = Tools/BTS
 MOD = $(BTS_PATH)/Modules
-
+IO = FileIO
 # ---------
 # VARIABLES
 # ---------
@@ -19,6 +19,7 @@ BTS = $(BTS_PATH)/BTS.h
 # Algorithm Variables
 MSD = MeanSquareDeviation
 EC = ExtendedComparison
+READ = ReadNPY
 CS = ComplementarySimilarity
 MED = Medoid
 OUTL = Outlier
@@ -26,10 +27,11 @@ DS = DiversitySelection
 NI = NewIndex
 ALI = Align
 
-BTS = $(DC).o $(ES).o $(MSD).o $(EC).o $(CS).o $(MED).o $(OUTL).o $(DS).o $(NI).o $(ALI).o
+BTS = $(DC).o $(ES).o $(READ).o $(MSD).o $(EC).o $(CS).o $(MED).o $(OUTL).o $(DS).o $(NI).o $(ALI).o
 
 OBJ_FILES = $(DT)/$(DC).o \
             $(MOD)/$(ES).o \
+			$(IO)/$(READ).o \
             $(BTS_PATH)/$(MSD).o \
             $(BTS_PATH)/$(EC).o \
             $(BTS_PATH)/$(CS).o \
@@ -53,16 +55,23 @@ clean:
 	cd $(BTS_PATH) && rm -f *.o
 	cd $(MOD) && rm -f *.o
 
-datatest: $(DC)
-	$(CXX) $(CXXFLAGS) data_containers_test.cpp -o datatest
+datatest: $(DC).o
+	$(CXX) $(CXXFLAGS) $(DT)/$(DC).o data_containers_test.cpp -o datatest
+
+readwrite: $(DC).o $(READ).o
+	$(CXX) $(CXXFLAGS) $(DT)/$(DC).o $(IO)/$(READ).o io_test.cpp -o io_test
 
 # Data Types and Containers Object
 $(DC).o:
 	$(CXX) $(CXXFLAGS) -c Datatypes/$(DC).cpp -o Datatypes/$(DC).o
 
 # Esim Modules Object
-$(ES).o: Datatypes/$(DC).o
+$(ES).o: $(DT)/$(DC).o
 	$(CXX) $(CXXFLAGS) -c $(MOD)/$(ES).cpp -o $(MOD)/$(ES).o
+
+# Read NPY Object
+$(READ).o: $(DT)/$(DC).o
+	$(CXX) $(CXXFLAGS) -c $(IO)/$(READ).cpp -o $(IO)/$(READ).o
 
 # Mean Squared Deviation Object
 # Requires:
