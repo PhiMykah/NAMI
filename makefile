@@ -54,11 +54,12 @@ clean:
 	cd $(DT) && rm -f *.o
 	cd $(BTS_PATH) && rm -f *.o
 	cd $(MOD) && rm -f *.o
+	cd $(IO) && rm -f *.o
 
 datatest: $(DC).o
 	$(CXX) $(CXXFLAGS) $(DT)/$(DC).o data_containers_test.cpp -o datatest
 
-readwrite: $(DC).o $(READ).o
+iotest: $(DC).o $(READ).o
 	$(CXX) $(CXXFLAGS) $(DT)/$(DC).o $(IO)/$(READ).o io_test.cpp -o io_test
 
 # Data Types and Containers Object

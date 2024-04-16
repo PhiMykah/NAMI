@@ -15,18 +15,18 @@ std::string toString(char* a, int size){
 
 Matrix loadNPYFile(char file_path[]){
     std::ifstream array_file;
-    fprintf(stderr, "Opening %s\n", file_path);
+    // fprintf(stderr, "Opening %s\n", file_path);
 
     // Open the file as a binary file
     array_file.open(file_path, ios::binary | ios::in);
     // Ensure that loading only continues if file is properly loaded
     if (!array_file){
-        fprintf(stderr, "Unable to open file!\n");
+        // fprintf(stderr, "Unable to open file!\n");
         array_file.close();
         return Matrix();
     } 
 
-    fprintf(stderr, "File opened!\n");
+    // fprintf(stderr, "File opened!\n");
 
     // Seek to the header size and read HEADER_LEN provided by the data.
     array_file.seekg(8, ios::beg);
@@ -51,7 +51,7 @@ Matrix loadNPYFile(char file_path[]){
     HeaderNPY headerParams = parseHeader(header, h_size);
 
     if (headerParams.fortran_order) {
-        fprintf(stderr, "Fortran order arrays are currently unsupported.");
+        // fprintf(stderr, "Fortran order arrays are currently unsupported.");
         array_file.close();
         return Matrix();
     }
@@ -91,46 +91,31 @@ HeaderNPY parseHeader(std::string header, int header_size){
 
     M = stoi(M_str);
     N = stoi(N_str);
-    
-    // std::string dtype_output;
-    // switch (dtype){
-    // case DataType::f4:
-    //     dtype_output = "f4";
-    //     break;
-    // case DataType::i8:
-    //     dtype_output = "i8";
-    //     break;
-    // case DataType::i4:
-    //     dtype_output = "i4";
-    //     break;
-    // case DataType::f8:    
-    // default:
-    //     dtype_output = "f8";
-    //     break;
-    // } 
-    // std::cout << "Datatype: " << dtype_output << std::endl;
-    // std::cout << "Fortran Order: ";
-    // if (isFortranOrder) {std::cout << "True\n";} else {std::cout << "False\n";}
-    // std::cout << "Shape: " << M << ", " << N << std::endl;
 
     return HeaderNPY(dtype, isFortranOrder, M, N);
 }
 
 Matrix PopulateMatrix(std::ifstream &array_file, HeaderNPY header, std::streampos data_start){
-    int byte_length;
+    // Integer storing the length of the datatype based on the header
+    int dtype_length;
 
     switch (header.dtype)
     {
     case DataType::f8:
-        byte_length = sizeof(double);
+        dtype_length = D_SIZE;
         break;
     case DataType::f4:
-        byte_length = sizeof(float);
+        dtype_length = F_SIZE;
         break;
+    case DataType::i4:
+        dtype_length = I4_SIZE;
+    case DataType::i8:
+        dtype_length = I8_SIZE;
+
     default:
-        fprintf(stderr, "Datatype not yet implemented!");
+        // fprintf(stderr, "Datatype not yet implemented!");
         array_file.close();
-        fprintf(stderr, "File Closed!\n");
+        // fprintf(stderr, "File Closed!\n");
         return Matrix();
         break;
     }
@@ -148,11 +133,11 @@ Matrix PopulateMatrix(std::ifstream &array_file, HeaderNPY header, std::streampo
     // char * buffer = new char [data_length];
     // array_file.read(buffer,data_length);
 
-    if (data_length/byte_length < (header.M_size * header.N_size)) {
-        fprintf(stderr, "Mismatching header shape (%i,%i) with buffer size %i",
-                header.M_size, header.N_size, data_length/byte_length);
+    if (data_length/dtype_length < (header.M_size * header.N_size)) {
+        // fprintf(stderr, "Mismatching header shape (%i,%i) with buffer size %i",
+                // header.M_size, header.N_size, data_length/dtype_length);
         array_file.close();
-        fprintf(stderr, "File Closed!\n");
+        // fprintf(stderr, "File Closed!\n");
         return Matrix();
     }
 
@@ -166,22 +151,55 @@ Matrix PopulateMatrix(std::ifstream &array_file, HeaderNPY header, std::streampo
         vector newVector;
         for (int j = 0; j < header.N_size; j++)
         {
-            char value[byte_length];
-            array_file.read(value, byte_length);
-            float newValue;
-            for (int byte = 0; byte < byte_length; byte++)
-            {
-                printf("% 03i ", (unsigned int)value[byte]);
-            }
-            std::cout << std::endl;
+            // Read the datatype length's worth of bytes
+            char value[dtype_length];
+            array_file.read(value, dtype_length);
 
+            float newValue; 
+            // Convert the bytes to correct datatype, swapping order for little endian
+            switch (header.dtype)
+            {
+            case DataType::f4:
+                newValue = GetDTypeFromBytes<float>(value);
+                break;
+            case DataType::i4:
+                newValue = (float)GetDTypeFromBytes<int64_t>(value);
+                break;
+            case DataType::i8:
+                newValue = (float)GetDTypeFromBytes<int64_t>(value);
+                break;
+            case DataType::f8:
+            default:
+                newValue = (float)GetDTypeFromBytes<double>(value);
+                break;
+            }
+
+            // Add value to vector
             newVector.push_back(newValue);
         }
+
+        // Add vector to Matrix
         newArray.push_back(newVector);
     }
     
-
     array_file.close();
-    fprintf(stderr, "File Closed!\n");
-    return Matrix();
+    // fprintf(stderr, "File Closed!\n");
+    return Matrix(newArray);
+}
+
+template <typename DType> DType GetDTypeFromBytes(char value[sizeof(DType)]){
+    const int size = sizeof(DType);
+    // DataType/byte array to store value
+    union byte_to_dt { DType dt; unsigned char c[size];} newValue;
+
+    // For little endian to little endian, each byte is set to the same position
+    // For little endian to big endian, each byte is set to the flipped position
+    for (int byte = 0; byte < size; byte++)
+    {   
+        newValue.c[byte] = value[byte];
+        // fprintf(stderr, "%02x ", value[byte]);
+    }
+    // fprintf(stderr, "%f\n", newValue.dt);
+
+    return newValue.dt;
 }

@@ -212,7 +212,7 @@ void Matrix::Flatten(){
     vector flatVec(this->m_array.size()*this->m_array[0].size());
     for (int row = 0; row < this->N; row++){
         for (int col = 0; col < this->M; col++){
-            flatVec[col + row * this->m_array.size()] = this->m_array[row][col];
+            flatVec[col + row * this->M] = this->m_array[row][col];
         }        
     }
     this->m_flat = flatVec;
