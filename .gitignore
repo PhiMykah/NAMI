@@ -52,6 +52,7 @@ __pycache__/
 *.app
 main
 datatest
+io_test
 
 # Testing Files
 output/*
