@@ -4,6 +4,7 @@ from mdance.tools.bts import calculate_medoid, calculate_outlier
 from mdance.tools.bts import trim_outliers, diversity_selection
 from mdance.tools.bts import align_traj, equil_align
 
+FILE = "examples/backbone.npy"
 metrics = ['MSD', 'BUB', 'Fai', 'Gle', 'Ja', 'JT', 'RT', 'RR', 'SM', 'SS1', 'SS2']
 
 def output_results(title : str, results : list):
@@ -14,7 +15,7 @@ def output_results(title : str, results : list):
     print("\n")
 
 if __name__ == "__main__":
-    matrix = np.arange(1,26).reshape(5,5)
+    matrix = np.load(FILE)
     int_trimmed = 3
     float_trimmed = .5
     N_atoms = 10
@@ -38,11 +39,11 @@ if __name__ == "__main__":
 
     # dsr_vals = [diversity_selection(matrix, percentage, metric, start='random', N_atoms=N_atoms) for metric in metrics]
     
-    dsl_vals = [diversity_selection(matrix, percentage, metric, start=[0, 2, 4], N_atoms=N_atoms) for metric in metrics]  # type: ignore
+    # dsl_vals = [diversity_selection(matrix, percentage, metric, start=[0, 2, 4], N_atoms=N_atoms) for metric in metrics]  # type: ignore
 
-    atu_vals = [align_traj(matrix, N_atoms, align_method='uni')]
+    # atu_vals = [align_traj(matrix, N_atoms, align_method='uni')]
 
-    atk_vals = [align_traj(matrix, N_atoms, align_method='kron')]
+    # atk_vals = [align_traj(matrix, N_atoms, align_method='kron')]
 
     tests : list[tuple] = [
         ("Extended Comparison", ec_vals),
@@ -54,7 +55,7 @@ if __name__ == "__main__":
         # ("Diversity Selection + NewIndex (Medoid)", dsm_vals),
         # ("Diversity Selection + NewIndex (Outlier)", dso_vals),
         # ("Diversity Selection + NewIndex (Random)", dsr_vals),
-        ("Diversity Selection + NewIndex (0, 2 , 4)", dsl_vals),
+        # ("Diversity Selection + NewIndex (0, 2 , 4)", dsl_vals),
         # ("Align Trajectory Uniform", atu_vals),
         # ("Align Trajectory Kronecker", atk_vals),
     ]

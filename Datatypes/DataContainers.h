@@ -176,7 +176,7 @@ public:
     Matrix pow(int power);
 
     // Temporary print function until implemented through outstream
-    void print();
+    void print(int outputSize = 10);
 
     // Called by destructor to clear object
     void clear();

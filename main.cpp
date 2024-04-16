@@ -101,21 +101,15 @@ template <typename T> void OutputResults(
 }
 
 int main(int argc, char *argv[]) {
+    char file[] = "./examples/backbone.npy";
     float result;
     float condensed_result;
     int n_atoms = 10;
     float percent_trimmed = 0.5;
-    int percentage = 75;
+    // int percentage = 75;
     Criterion criterion = Criterion::COMP_SIM;
 
-    vec2D array {
-        { 1.0, 2.0, 3.0, 4.0, 5.0},
-        { 6.0, 7.0, 8.0, 9.0,10.0},
-        {11.0,12.0,13.0,14.0,15.0},
-        {16.0,17.0,18.0,19.0,20.0},
-        {21.0,22.0,23.0,24.0,25.0}};
-
-    Matrix matrix(array);
+    Matrix matrix = loadNPYFile(file);
 
     printf("Matrix:\n");
     matrix.print();
@@ -154,15 +148,18 @@ int main(int argc, char *argv[]) {
     OutputResults<Criterion>("Trim Outliers", matrix, metrics, percent_trimmed, n_atoms, criterion,
     static_cast<Matrix (*)(Matrix, float, Metric, int, Criterion)>(&TrimOutliers));
 
-    OutputResults<DiversitySeed>("DiversitySelection + NewIndex (MEDOID)", matrix, metrics,
-    percentage, n_atoms, DiversitySeed::MEDOID, DiversitySelection);
+    // Diversity Selection Medoid Results
+    // OutputResults<DiversitySeed>("DiversitySelection + NewIndex (MEDOID)", matrix, metrics,
+    // percentage, n_atoms, DiversitySeed::MEDOID, DiversitySelection);
 
-    OutputResults<DiversitySeed>("DiversitySelection + NewIndex (OUTLIER)", matrix, metrics,
-    percentage, n_atoms, DiversitySeed::OUTLIER, DiversitySelection);
+    // Diversity Selection Outlier Results
+    // OutputResults<DiversitySeed>("DiversitySelection + NewIndex (OUTLIER)", matrix, metrics,
+    // percentage, n_atoms, DiversitySeed::OUTLIER, DiversitySelection);
 
-    OutputResults<DiversitySeed>("DiversitySelection + NewIndex (RANDOM)", matrix, metrics,
-    percentage, n_atoms, DiversitySeed::RANDOM, DiversitySelection);
+    // Diversity Selection Random Results
+    // OutputResults<DiversitySeed>("DiversitySelection + NewIndex (RANDOM)", matrix, metrics,
+    // percentage, n_atoms, DiversitySeed::RANDOM, DiversitySelection);
 
-    OutputResults<std::vector<int>>("DiversitySelection + NewIndex (LIST)", matrix, metrics,
-    percentage, n_atoms, std::vector<int> {0, 2, 4}, DiversitySelection);
+    // OutputResults<std::vector<int>>("DiversitySelection + NewIndex (LIST)", matrix, metrics,
+    // percentage, n_atoms, std::vector<int> {0, 2, 4}, DiversitySelection);
 }

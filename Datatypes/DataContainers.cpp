@@ -348,14 +348,41 @@ void Matrix::push_back(vector x) {
     }
 }
 
-void Matrix::print(){
+void Matrix::print(int outputSize){
+
+    char ellipses[2];
+    ellipses[0] = (char) 194;
+    ellipses[1] = (char) 183;
+
     for (int row = 0; row < this->N; row ++)
     {
         for (int col = 0; col < this->M; col++)
         {
             printf("% 7.2f ", this->m_array[row][col]);
+
+            if (col == outputSize) {
+                printf("···");
+                break;}
         }
         std::cout << std::endl;
+        if (row > outputSize) 
+        {   
+            for (int i = 0; i < 3; i++) {
+                for (int col = 0; col < outputSize+1; col++) {
+                    printf(" %7s ", ellipses);
+                }
+                printf("\n");
+            }
+            printf("\n");
+            for (int col = 0; col < this->M; col++) {
+                printf("% 7.2f ", this->m_array[this->N-1][col]);
+
+                if (col == outputSize) {
+                    printf("···");
+                    break;}
+            }
+            break;
+        }
     }
 }
 
@@ -468,7 +495,7 @@ Matrix vectorReshape(vector vec, const Matrix& source_matrix){
 
 vector const& Matrix::operator[](int idx) const {
     if (idx < 0 || idx >= this->N) {
-        fprintf(stderr, "Internal Error: Position %i out of range for Argument List.\n",idx);
+        //fprintf(stderr, "Internal Error: Position %i out of range for Argument List.\n",idx);
         return EMPTY_VECTOR;
     }
     return this->m_array.at(idx);
