@@ -79,21 +79,23 @@ Counters CalculateCounters(Matrix c_total, int n_objects, float c_threshold, int
     /*
     This section implements MDANCE's logic almost identically, but with a different datatype
     */
-    Matrix a_indices = (2 * c_total - n_objects) > c_threshold; 
-    Matrix d_indices = (n_objects - 2 * c_total) > c_threshold;
-    Matrix dis_indices = (2 * c_total - n_objects).Absolute() <= c_threshold;
 
-    float a = a_indices.Sum();
-    float d = d_indices.Sum();
-    float total_dis = dis_indices.Sum();
+    index_vec a_indices = arma::find((2 * c_total - n_objects) > c_threshold);
+    index_vec d_indices = arma::find((n_objects - 2 * c_total) > c_threshold);
+    index_vec dis_indices = arma::find((arma::abs(2 * c_total - n_objects) <= c_threshold));
 
-    Matrix a_w_array = f_s(2 * c_total[a_indices] - n_objects, w_factor, n_objects);
-    Matrix d_w_array = f_s((2 * c_total[d_indices] - n_objects).Absolute(), w_factor, n_objects);
-    Matrix total_w_dis_array = f_d((2 * c_total[dis_indices] - n_objects).Absolute(), w_factor, n_objects);
+    // Calculate overall sum by summing all of the columns and summing all of the remaining rows
+    float a = a_indices.n_elem;
+    float d = d_indices.n_elem;
+    float total_dis = dis_indices.n_elem;
+    
+    Matrix a_w_array = f_s(2 * c_total.elem(a_indices) - n_objects, w_factor, n_objects);
+    Matrix d_w_array = f_s(arma::abs(2 * c_total.elem(d_indices) - n_objects), w_factor, n_objects);
+    Matrix total_w_dis_array = f_d(arma::abs(2 * c_total.elem(dis_indices) - n_objects), w_factor, n_objects);
 
-    float w_a = a_w_array.Sum();
-    float w_d = d_w_array.Sum();
-    float total_w_dis = total_w_dis_array.Sum();
+    float w_a = MatSum(a_w_array);
+    float w_d = MatSum(d_w_array);
+    float total_w_dis = MatSum(total_w_dis_array);
 
     float total_sim = a + d;
     float total_w_sim = w_a + w_d;
@@ -173,16 +175,20 @@ Indices GenSimCounters(Matrix c_total, int n_objects, float c_threshold, int w_f
 // * Similarity and dissimilarity functions *
 // ******************************************
 
-Matrix F_S_Default(Matrix d, int w_factor, int n_objects){return Matrix(vec2D {std::vector<float>{1}});}
+Matrix F_S_Default(Matrix d, int w_factor, int n_objects){return Matrix(1,1, arma::fill::ones);}
 
-Matrix F_D_Default(Matrix d, int w_factor, int n_objects){return Matrix(vec2D {std::vector<float>{1}});}
+Matrix F_D_Default(Matrix d, int w_factor, int n_objects){return Matrix(1,1, arma::fill::ones);}
 
 Matrix F_S_Fraction(Matrix d, int w_factor, int n_objects){return d/n_objects;}
 
 // Unsure if order of operations with modulo is correct - φ
-Matrix F_D_Fraction(Matrix d, int w_factor, int n_objects){return 1 - (d - (n_objects % 2))/n_objects;}
+Matrix F_D_Fraction(Matrix d, int w_factor, int n_objects){return 1 - (d - n_objects % 2)/n_objects;}
 
-Matrix F_S_Power(Matrix d, int w_factor, int n_objects){return pow(w_factor,-1 * (n_objects-d));}
+Matrix F_S_Power(Matrix d, int w_factor, int n_objects){
+    Matrix w_fac(d.n_rows, d.n_cols, arma::fill::value(w_factor)); 
+    return arma::pow(w_fac,-1 * (n_objects-d));}
 
 // Unsure if order of operations with modulo is correct - φ
-Matrix F_D_Power(Matrix d, int w_factor, int n_objects){return pow(w_factor,-1 * (d - (n_objects % 2)));}
+Matrix F_D_Power(Matrix d, int w_factor, int n_objects){
+    Matrix w_fac(d.n_rows, d.n_cols, arma::fill::value(w_factor));
+    return arma::pow(w_fac,-1 * (d - (n_objects % 2)));}

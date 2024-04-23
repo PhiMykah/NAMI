@@ -10,7 +10,7 @@ IO = FileIO
 # ---------
 
 CXX=g++
-CXXFLAGS= -g -Wall -std=c++11
+CXXFLAGS= -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack
 DC = DataContainers
 ES = EsimModules
 INCLUDES = Datatypes/$(DC).o $(MOD)/$(ES).o
@@ -25,9 +25,8 @@ MED = Medoid
 OUTL = Outlier
 DS = DiversitySelection
 NI = NewIndex
-ALI = Align
 
-BTS = $(DC).o $(ES).o $(READ).o $(MSD).o $(EC).o $(CS).o $(MED).o $(OUTL).o $(DS).o $(NI).o $(ALI).o
+BTS = $(DC).o $(ES).o $(READ).o $(MSD).o $(EC).o $(CS).o $(MED).o $(OUTL).o $(DS).o $(NI).o
 
 OBJ_FILES = $(DT)/$(DC).o \
             $(MOD)/$(ES).o \
@@ -38,8 +37,7 @@ OBJ_FILES = $(DT)/$(DC).o \
             $(BTS_PATH)/$(MED).o \
             $(BTS_PATH)/$(OUTL).o \
             $(BTS_PATH)/$(DS).o \
-            $(BTS_PATH)/$(NI).o \
-            $(BTS_PATH)/$(ALI).o
+            $(BTS_PATH)/$(NI).o
 
 # ----------------
 # MAKEFILE SCRIPTS
@@ -56,11 +54,15 @@ clean:
 	cd $(MOD) && rm -f *.o
 	cd $(IO) && rm -f *.o
 
-datatest: $(DC).o
-	$(CXX) $(CXXFLAGS) $(DT)/$(DC).o data_containers_test.cpp -o datatest
+# datatest: $(DC).o
+# 	$(CXX) $(CXXFLAGS) $(DT)/$(DC).o data_containers_test.cpp -o datatest
+
+logictest: $(BTS)
+	$(CXX) $(CXXFLAGS) $(OBJ_FILES) logictest.cpp -o logictest
 
 iotest: $(DC).o $(READ).o
 	$(CXX) $(CXXFLAGS) $(DT)/$(DC).o $(IO)/$(READ).o io_test.cpp -o io_test
+	make clean
 
 # Data Types and Containers Object
 $(DC).o:
@@ -110,6 +112,13 @@ $(MED).o:  $(EC).o $(CS).o $(INCLUDES)
 $(OUTL).o: $(EC).o $(CS).o $(INCLUDES) 
 	$(CXX) $(CXXFLAGS) -c $(BTS_PATH)/$(OUTL).cpp -o $(BTS_PATH)/$(OUTL).o
 
+# Get New Index N Object
+# Requires:
+# 	- Extended comparison
+#	- Default includes
+$(NI).o: $(EC).o $(INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $(BTS_PATH)/$(NI).cpp -o $(BTS_PATH)/$(NI).o
+
 # Diversity Selection Object
 # Requires:
 # 	- Outlier
@@ -118,17 +127,3 @@ $(OUTL).o: $(EC).o $(CS).o $(INCLUDES)
 #	- Default includes
 $(DS).o: $(OUTL).o $(MED).o $(NI).o $(INCLUDES)
 	$(CXX) $(CXXFLAGS) -c $(BTS_PATH)/$(DS).cpp -o $(BTS_PATH)/$(DS).o
-
-# Get New Index N Object
-# Requires:
-# 	- Extended comparison
-#	- Default includes
-$(NI).o: $(EC).o $(INCLUDES)
-	$(CXX) $(CXXFLAGS) -c $(BTS_PATH)/$(NI).cpp -o $(BTS_PATH)/$(NI).o
-
-# Alignment Operations Object
-# Requires:
-#	- Default includes
-$(ALI).o: $(INCLUDES)
-	$(CXX) $(CXXFLAGS) -c $(BTS_PATH)/$(ALI).cpp -o $(BTS_PATH)/$(ALI).o
-

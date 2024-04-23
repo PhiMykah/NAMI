@@ -21,23 +21,26 @@ int
 int CalculateOutlier(Matrix matrix, Metric metric, int n_atoms){
     if (metric == Metric::MSD) {
         // Returns the indices where the minimum value occurs
-        vector csim = vector(CSimMSD(matrix, n_atoms));
-        vector::iterator it = min_element(csim.begin(), csim.end());
-        int index = std::distance(csim.begin(), it);
-        return index;
+        rvector csim = CSimMSD(matrix, n_atoms).as_row();
+        uword min = csim.index_min();
+        return min;
     }
-    int N = matrix.N;
-    Matrix sq_data_total = matrix.pow(2);
-    vector c_sum_total = matrix.Sum(COL);
-    vector sq_sum_total = sq_data_total.Sum(COL);
-    int index = N + 1;
-    int max_dissim = INT_MAX;
-
-    for (int row = 0; row < N; row++){
-        float value = ExtendedComparison(c_sum_total - matrix[row], metric, N-1, n_atoms);
-        if (value < max_dissim) {
-            max_dissim = value;
-            index = row;   
+    uword N = matrix.n_rows;
+    Matrix sq_data_total = arma::pow(matrix,2);
+    rvector c_sum_total = arma::sum(matrix,COL);
+    rvector sq_sum_total = arma::sum(sq_data_total,COL);
+    rvector c_diff;
+    rvector sq_diff;
+    uword index = N + 1;
+    float min_dissim = INFINITY;
+    float value;
+    for (uword i = 0; i < N; i++){
+        c_diff = c_sum_total - matrix.row(i);
+        sq_diff = sq_sum_total - arma::pow(matrix.row(i), 2);
+        value = ExtendedComparison(c_diff, sq_diff, metric, N-1, n_atoms);
+        if (value < min_dissim) { // Might need to specify a significant difference between these two for assurance - φ
+            min_dissim = value;
+            index = i;   
         }
     }
 
@@ -79,7 +82,7 @@ Matrix TrimOutliers(
     Matrix matrix, float percent_trimmed, Metric metric, 
     int n_atoms, Criterion criterion){
     
-    int N = matrix.N;
+    int N = matrix.n_cols;
     int cutoff = int(floor(N * percent_trimmed));
     
     return TrimOutliers(matrix, cutoff, metric, n_atoms, criterion);
@@ -118,69 +121,56 @@ Matrix TrimOutliers(
     Matrix matrix, int n_trimmed, Metric metric,
     int n_atoms, Criterion criterion){
     
-    int N = matrix.N;
+    uword N = matrix.n_rows;
     int cutoff = n_trimmed;
 
     if (criterion == Criterion::SIM_TO_MEDOID) {
         int medoid_index = CalculateMedoid(matrix, metric, n_atoms);
-        vector medoid = matrix[medoid_index];
+        rvector medoid = matrix.row(medoid_index);
         // Remove the values from the medoid index of matrix
-        matrix.erase(medoid_index);
+        matrix.shed_row(medoid_index);
     
-        vector values;
-        for (int row = 0; row < N; row++){
-            values.push_back(
-                ExtendedComparison(matrix[row], medoid, metric, n_atoms) // data_type = full?
-            );
+        uvec values(N);
+        for (uword i = 0; i < N; i++){
+            values(i) = ExtendedComparison(matrix.row(i), medoid, metric, n_atoms); // data_type = full?
         }
 
-        // Sort the list
-        std::vector<int> highest_indices;
-        for (long unsigned int i = 0; i < values.size(); i++)
-        {
-            highest_indices.push_back(i);
-        }
-
-        quicksort(values, highest_indices, 0, values.size()-1);
+        // Sort the values
+        uvec v_sorted = arma::sort(values);
 
         // Collect the indices of the last cutoff elements of the sorted list
-        highest_indices.erase(highest_indices.end()-cutoff, highest_indices.end()); 
+        uvec highest_indices = v_sorted.subvec(cutoff, v_sorted.size()-1);
 
         // Remove the values at those indices of the original matrix
-        Matrix newMatrix(matrix.GetArray());
-
-        newMatrix.erase(highest_indices);
+        Matrix newMatrix(matrix);
+    
+        newMatrix.shed_rows(highest_indices);
 
         return newMatrix;
 
     } else {
-        vector c_sum = matrix.Sum(COL);
-        vector sq_sum_total = matrix.pow(2).Sum(COL);
-        vector comp_sims;
-        vector values;
-        for (int row = 0; row < N; row++){
-            vector c = c_sum - matrix[row];
-            vector sq = sq_sum_total - (pow(matrix[row],2));
-            values.push_back(
-                ExtendedComparison(c, sq, metric, N-1, n_atoms)
-            );
-        }
-        // Sort the list
-        std::vector<int> lowest_indices;
-        for (long unsigned int i = 0; i < values.size(); i++)
-        {
-            lowest_indices.push_back(i);
+        rvector c_sum = arma::sum(matrix,COL);
+        rvector sq_sum_total = arma::sum(arma::pow(matrix,2),COL);
+        rvector comp_sims;
+        float result;
+        uvec values(N, arma::fill::zeros);
+        for (uword i = 0; i < N; i++){
+            rvector c = c_sum - matrix.row(i);
+            rvector sq = sq_sum_total - (arma::pow(matrix.row(i),2));
+            result = ExtendedComparison(c, sq, metric, N-1, n_atoms);
+            values(i) = result;
         }
 
-        quicksort(values, lowest_indices, 0, values.size()-1);
+        // Sort the values
+        uvec v_sorted = arma::sort(values);
 
         // Collect the indices of the first cutoff elements of the sorted list
-        lowest_indices.erase(lowest_indices.begin()+cutoff, lowest_indices.end()); 
+        uvec lowest_indices = v_sorted.subvec(0, cutoff);
         
         // Remove the values at those indices of the original matrix
-        Matrix newMatrix(matrix.GetArray());
+        Matrix newMatrix(matrix);
 
-        newMatrix.erase(lowest_indices);
+        newMatrix.shed_rows(arma::unique(lowest_indices));
 
         return newMatrix;
     }

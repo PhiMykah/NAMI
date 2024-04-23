@@ -10,13 +10,13 @@ float ExtendedComparison(
 
 // Calculate the extended comparison of the column sum dataset
 float ExtendedComparison(
-    vector c_sum, Metric metric = Metric::MSD, 
+    rvector c_sum, Metric metric = Metric::MSD, 
     int N = 0, int n_atoms = 1, float c_threshold = 0, 
     WFactor w_factor = WFactor::FRACTION);
 
 // Calculate the extended comparison of the column sum and square column sum of datasets
 float ExtendedComparison(
-    vector c_sum, vector sq_sum, 
+    rvector c_sum, rvector sq_sum, 
     Metric metric = Metric::MSD, int N = 0, int n_atoms = 1,
     float c_threshold = 0, WFactor w_factor = WFactor::FRACTION);
 

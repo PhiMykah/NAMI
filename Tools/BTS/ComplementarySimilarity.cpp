@@ -24,37 +24,46 @@ Matrix CalculateCompSim(Matrix matrix, Metric metric, int n_atoms){
         return CSimMSD(matrix, n_atoms);
     }
 
-    int N = matrix.N;
+    uword N = matrix.n_rows;
 
-    Matrix sq_data_total = matrix.pow(2);
+    Matrix sq_data_total = arma::pow(matrix,2);
 
-    vector c_sum_total = matrix.Sum(COL);
+    rvector c_sum_total = arma::sum(matrix,COL);
 
-    vector sq_sum_total = sq_data_total.Sum(COL); 
-
-    vector values;
-    for (int row = 0; row < N; row++){
-        values.push_back(
-            ExtendedComparison(c_sum_total - matrix[row], metric, N-1, n_atoms)
-        );
+    rvector sq_sum_total = arma::sum(sq_data_total,COL); 
+    rvector diff; 
+    rvector values(N);
+    for (uword i = 0; i < N; i++){
+        diff = c_sum_total - matrix.row(i);
+        values(i) =
+            ExtendedComparison(diff, metric, N-1, n_atoms);
     }
 
-    return Matrix(vec2D {values});
+    return Matrix(values);
 }
 
 
 // Simplified complementary similarity calculation if metric is MSD
 Matrix CSimMSD(Matrix matrix, int n_atoms){
-    int N = matrix.N;
-    Matrix sq_data = matrix.pow(2);
+    int N = matrix.n_rows;
+    Matrix sq_data = arma::pow(matrix,2);
 
-    vector c_sum = matrix.Sum(COL);
-    vector sq_sum = sq_data.Sum(COL);
+    rvector c_sum = arma::sum(matrix,COL);
+    rvector sq_sum = arma::sum(sq_data,COL);
 
-    Matrix comp_csum = c_sum - matrix;
-    Matrix comp_sqsum = sq_sum - sq_data;
+    Matrix comp_csum(matrix.n_rows, matrix.n_cols);
+    
+    for (uword i = 0; i < matrix.n_rows; i++) {
+        comp_csum.row(i) = c_sum - matrix.row(i);
+    }
 
-    Matrix total = vec2D{(2 * ((N-1) * comp_sqsum - comp_csum.pow(2))).Sum(ROW)};
+    Matrix comp_sqsum(matrix.n_rows, matrix.n_cols);
+
+    for (uword i = 0; i < matrix.n_rows; i++) {
+        comp_sqsum.row(i) = sq_sum - sq_data.row(i);
+    }
+
+    Matrix total(arma::sum(2 * ((N-1) * comp_sqsum - arma::pow(comp_csum,2)),ROW));
 
     Matrix comp_msd = total / std::pow(N-1, 2);
 

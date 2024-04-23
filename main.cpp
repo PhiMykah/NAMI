@@ -5,12 +5,12 @@ void OutputResults(
     int n_atoms, float (*test)(Matrix, Metric, int))
 {
     printf("%s:\n", title.c_str());
-    vector results;
+    rvector results(metrics.size());
 
     for (long unsigned int i = 0; i < metrics.size(); i++) {
-        results.push_back(test(matrix, metrics[i], n_atoms));
+        results(i) = test(matrix, metrics[i], n_atoms);
     }
-
+    
     for (long unsigned int i = 0; i < results.size(); i++)
     {
         printf("Metric #%i: %.2f\n", static_cast<int>(i+1), results[i]);
@@ -23,10 +23,10 @@ void OutputResults(
     int N, int n_atoms, float (*test)(Matrix, Metric, int, int, float, WFactor))
 {
     printf("%s:\n", title.c_str());
-    vector results;
+    rvector results(metrics.size());
 
     for (long unsigned int i = 0; i < metrics.size(); i++) {
-        results.push_back(test(matrix, metrics[i], N, n_atoms, 0, WFactor::FRACTION));
+        results(i) = test(matrix, metrics[i], N, n_atoms, 0, WFactor::FRACTION);
     }
 
     for (long unsigned int i = 0; i < results.size(); i++)
@@ -36,21 +36,21 @@ void OutputResults(
     printf("\n");
 }
 
-void OutputResults(
+void OutputResults( 
     std::string title, Matrix matrix, std::vector<Metric> metrics,
     int n_atoms, Matrix (*test)(Matrix, Metric, int))
 {
     printf("%s:\n", title.c_str());
-    Matrix results;
+    std::vector<Matrix> results;
 
     for (long unsigned int i = 0; i < metrics.size(); i++) {
-        results.push_back(test(matrix, metrics[i], n_atoms));
+        results.push_back(test(matrix, metrics[i], n_atoms).as_row());
     }
 
-    for (int i = 0; i < results.N; i++)
+    for (long unsigned int i = 0; i < metrics.size(); i++)
     {
-        printf("Metric #%i: ", i+1);
-        Matrix(vec2D {results[i]}).print();
+        printf("Metric #%lu:\n", i+1);
+        results[i].brief_print();
         printf("\n");
     }
     printf("\n");
@@ -71,7 +71,7 @@ template <typename Enum> void OutputResults(
     for (long unsigned int i = 0; i < results.size(); i++)
     {
         printf("Metric #%i:\n", static_cast<int>(i+1));
-        results[i].print();
+        results[i].brief_print();
         printf("\n");
     }
     printf("\n");
@@ -111,15 +111,15 @@ int main(int argc, char *argv[]) {
 
     Matrix matrix = loadNPYFile(file);
 
-    printf("Matrix:\n");
-    matrix.print();
+    // printf("Matrix:\n");
+    // matrix.print();
     
     result = MeanSquareDeviation(matrix, n_atoms);
 
-    vector c_sum = matrix.Sum(AXIS::COLUMN);
-    vector sq_sum = matrix.pow(2).Sum(AXIS::COLUMN);
+    rvector c_sum = arma::sum(matrix,(int)AXIS::COLUMN);
+    rvector sq_sum = arma::sum(arma::pow(matrix,2),(int)AXIS::COLUMN);
 
-    condensed_result = MSDCondensed(c_sum, sq_sum, 5, n_atoms);
+    condensed_result = MSDCondensed(c_sum, sq_sum, matrix.n_rows, n_atoms);
 
     printf("\nMSD Result: %.2f \nMSD Condensed Result: %.2f \n", result, condensed_result);
     

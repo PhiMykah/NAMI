@@ -19,6 +19,7 @@ Matrix loadNPYFile(char file_path[]){
 
     // Open the file as a binary file
     array_file.open(file_path, ios::binary | ios::in);
+
     // Ensure that loading only continues if file is properly loaded
     if (!array_file){
         // fprintf(stderr, "Unable to open file!\n");
@@ -59,7 +60,6 @@ Matrix loadNPYFile(char file_path[]){
     // Form Matrix from data stream
     return PopulateMatrix(array_file, headerParams, data_start);
 }
-
 
 HeaderNPY parseHeader(std::string header, int header_size){
 
@@ -141,14 +141,12 @@ Matrix PopulateMatrix(std::ifstream &array_file, HeaderNPY header, std::streampo
         return Matrix();
     }
 
-    // Initialize 2D vector
-    vec2D newArray;
+    Matrix newMat(header.M_size, header.N_size);
 
     // For loop iterates and collects each value from data stream
     // Converts 8 bytes and 4 bytes to float
     for (int i = 0; i < header.M_size; i++)
     {   
-        vector newVector;
         for (int j = 0; j < header.N_size; j++)
         {
             // Read the datatype length's worth of bytes
@@ -174,17 +172,14 @@ Matrix PopulateMatrix(std::ifstream &array_file, HeaderNPY header, std::streampo
                 break;
             }
 
-            // Add value to vector
-            newVector.push_back(newValue);
+            // Add value to Matrix
+            newMat(i, j) = newValue;
         }
-
-        // Add vector to Matrix
-        newArray.push_back(newVector);
     }
     
     array_file.close();
     // fprintf(stderr, "File Closed!\n");
-    return Matrix(newArray);
+    return newMat;
 }
 
 template <typename DType> DType GetDTypeFromBytes(char value[sizeof(DType)]){

@@ -19,6 +19,7 @@ enum class DataType {f8=0, f4=1, i8=2, i4=3};
 // int64 size
 #define I8_SIZE sizeof(int64_t)
 
+std::string toString(char* a, int size);
 
 struct HeaderNPY
 {

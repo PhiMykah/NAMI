@@ -35,28 +35,29 @@ float ExtendedComparison(
     float c_threshold, WFactor w_factor){
     
     // Column sum
-    vector c_sum;
+    rvector c_sum;
 
     // Calculate the column sum of the matrix
-    c_sum = matrix.Sum(COL);
+    c_sum = arma::sum(matrix, COL);
 
     // Set the number of rows if not provided
     if (N == 0){
-        N = matrix.N;
+        N = matrix.n_rows;
     }
 
     if (metric == Metric::MSD) {
         // Squared Matrix
         Matrix sq_matrix;
         // Squared matrix column sum
-        vector sq_sum;
+        rvector sq_sum;
 
-        sq_matrix = matrix.pow(2);
+        sq_matrix = arma::pow(matrix,2);
 
-        sq_sum = sq_matrix.Sum(COL);
+        sq_sum = arma::sum(sq_matrix,COL);
+
         return MSDCondensed(c_sum,sq_sum, N, n_atoms);
     } else {
-        Indices esim_dict = GenSimCounters(Matrix(vec2D {c_sum}), N, c_threshold, (int) w_factor);
+        Indices esim_dict = GenSimCounters(Matrix(c_sum), N, c_threshold, (int) w_factor);
 
         switch (metric)
         {
@@ -119,11 +120,11 @@ float
     Extended comparison value.
 */
 float ExtendedComparison(
-    vector c_sum, Metric metric, 
+    rvector c_sum, Metric metric, 
     int N, int n_atoms, float c_threshold, 
     WFactor w_factor)
 {
-    Matrix c_sum_Matrix(vec2D {c_sum});
+    Matrix c_sum_Matrix(c_sum);
     
     Indices esim_dict = GenSimCounters(c_sum_Matrix, N, c_threshold, (int) w_factor);
 
@@ -189,7 +190,7 @@ float
     Extended comparison value.
 */
 float ExtendedComparison(
-    vector c_sum, vector sq_sum, 
+    rvector c_sum, rvector sq_sum, 
     Metric metric, int N, int n_atoms,
     float c_threshold, WFactor w_factor)
 {

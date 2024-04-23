@@ -5,6 +5,7 @@ int main(int argc, char const *argv[])
 {   
     char file[] = "../backbone.npy";
     Matrix newMat = loadNPYFile(file);
+    // std::cout << newMat.n_rows << " " << newMat.n_cols << std::endl;
     newMat.print();
     return 0;
 }

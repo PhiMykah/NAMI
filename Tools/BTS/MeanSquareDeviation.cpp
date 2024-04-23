@@ -20,22 +20,23 @@ float
 float MeanSquareDeviation(Matrix matrix, int n_atoms){
 
     float msd;
-    // MSD before divinging by N^2
+    
+    // MSD before dividing by N^2
     float sum = 0;
 
     // Square the argument matrix to get squared matrix
-    Matrix sq_matrix = matrix.pow(2);
+    Matrix sq_matrix = arma::pow(matrix, 2);
     
     // Summate the columns of the matrix and its squared matrix
-    vector c_sum = matrix.Sum(COL);
-    vector sq_sum = sq_matrix.Sum(COL);
+    rvector c_sum = arma::sum(matrix, COL);
+    rvector sq_sum = arma::sum(sq_matrix, COL);
 
     // N represents number of rows
-    int N = matrix.N;
+    int N = matrix.n_rows;
 
     // Perform summation component of MSD
-    for (long unsigned int i = 0; i < c_sum.size(); i++) {
-        sum += 2 * (N * sq_sum[i] - pow(c_sum[i],2));
+    for (uword i = 0; i < c_sum.size(); i++) {
+        sum += 2 * (N * sq_sum(i) - pow(c_sum(i),2));
     }
 
     // Calculate non-normalized msd
@@ -64,11 +65,12 @@ Returns
 float
     normalized MSD value.
 */
-float MSDCondensed(vector c_sum, vector sq_sum, int N, int n_atoms){
-    float sum = 0;
-    for (long unsigned int i = 0; i < c_sum.size(); i++) {
-        sum += 2 * (N * sq_sum[i] - pow(c_sum[i],2));
-    }
-    float msd = sum / pow(N,2);
+float MSDCondensed(rvector c_sum, rvector sq_sum, int N, int n_atoms){
+    float msd = arma::sum(2 * ((N * sq_sum) - arma::pow(c_sum, 2))) / pow(N,2);
+    // float sum = 0;
+    // for (uword i = 0; i < c_sum.size(); i++) {
+    //     sum += 2 * (N * sq_sum(i) - pow(c_sum(i),2));
+    // }
+    // float msd = sum / pow(N,2);
     return (msd / n_atoms);
 }

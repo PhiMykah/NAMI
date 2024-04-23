@@ -6,5 +6,5 @@
 float MeanSquareDeviation(Matrix matrix, int n_atoms);
 
 // Condensed version of Mean square deviation (MSD).
-float MSDCondensed(std::vector<float> c_sum, std::vector<float> sq_sum, int N, int n_atoms);
+float MSDCondensed(rvector c_sum, rvector sq_sum, int N, int n_atoms);
 #endif // !MEAN_SQUARE_DEVIATION_H

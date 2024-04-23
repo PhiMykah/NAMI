@@ -53,6 +53,7 @@ __pycache__/
 main
 datatest
 io_test
+logictest
 
 # Testing Files
 output/*

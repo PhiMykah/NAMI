@@ -15,7 +15,6 @@
 #include "Tools/BTS/Outlier.h"
 #include "Tools/BTS/DiversitySelection.h"
 #include "Tools/BTS/NewIndex.h"
-#include "Tools/BTS/Align.h"
 #include "FileIO/ReadNPY.h"
 
 void OutputResults(

@@ -21,25 +21,26 @@ int
 int CalculateMedoid(Matrix matrix, Metric metric, int n_atoms){
     if (metric == Metric::MSD) {
         // Returns the indices where the maximum value occurs
-        vector csim = vector(CSimMSD(matrix, n_atoms));
-        vector::iterator it = max_element(csim.begin(), csim.end());
-        int index = std::distance(csim.begin(), it);
-        return index;
+        rvector csim = CSimMSD(matrix, n_atoms).as_row();
+        uword max = csim.index_max();
+        return max;
     }
-    int N = matrix.N;
-    Matrix sq_data_total = matrix.pow(2);
-    vector c_sum_total = matrix.Sum(COL);
-    vector sq_sum_total = sq_data_total.Sum(COL);
-    int index = N + 1;
+    uword N = matrix.n_rows;
+    Matrix sq_data_total = arma::pow(matrix,2);
+    rvector c_sum_total = arma::sum(matrix,COL);
+    rvector sq_sum_total = arma::sum(sq_data_total,COL);
+    rvector diff;
+    uword index = N + 1;
     int max_dissim = -1;
 
-    for (int row = 0; row < N; row++){
-        float value = ExtendedComparison(c_sum_total - matrix[row], metric, N-1, n_atoms);
-        if (value > max_dissim) {
+    for (uword i = 0; i < N; i++){
+        diff = c_sum_total - matrix.row(i);
+        float value = ExtendedComparison(diff, metric, N-1, n_atoms);
+        if (value > max_dissim) { // Might need to specify a significant difference between these two for assurance - φ
             max_dissim = value;
-            index = row;
+            index = i;
         }
     }
 
-    return index;
+    return (int)index;
 }

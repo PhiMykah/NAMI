@@ -2,7 +2,7 @@
 #define BTS_H
 #include "../../Datatypes/DataContainers.h"
 #include "Modules/EsimModules.h"
-#define COL AXIS::COLUMN 
-#define ROW AXIS::ROW
+#define COL (int)AXIS::COLUMN 
+#define ROW (int)AXIS::ROW
 
 #endif // !BTS_H

@@ -25,9 +25,10 @@ std::vector<int> DiversitySelection(
     DiversitySeed start, int n_atoms)
 {
     std::vector<int> selected_n;
-    int n_total = matrix.N;
+    uword n_total = matrix.n_cols;
     std::vector<int> total_indices;
-    for (int i = 0; i < n_total; i++)
+
+    for (uword i = 0; i < n_total; i++)
     {
         total_indices.push_back(i);
     }
@@ -74,8 +75,8 @@ std::vector<int> DiversitySelection(
     std::vector<int> selected_n = start;
     std::vector<int> select_from_n;
     int new_index_n;
-    vector sq_selection_condensed;
-    int n_total = matrix.N;
+    rvector sq_selection_condensed;
+    int n_total = matrix.n_cols;
     std::vector<int> total_indices;
 
     for (int i = 0; i < n_total; i++)
@@ -88,17 +89,17 @@ std::vector<int> DiversitySelection(
 
     if (n_max > n_total){n_max = n_total;}
 
-    vec2D newArray;
-    for (long unsigned int i = 0; i < selected_n.size(); i++) {
-        newArray.push_back(matrix[selected_n[i]]);
-    }
-    Matrix selection(newArray);
+    Matrix selection(selected_n.size(), matrix.n_cols, arma::fill::zeros);
 
-    vector selected_condensed = selection.Sum(COL);
+    for (long unsigned int i = 0; i < selected_n.size(); i++) {
+        selection.row(i) = matrix.row(selected_n[i]);
+    }
+
+    rvector selected_condensed = arma::sum(selection,COL);
 
     if (metric == Metric::MSD) {
-            Matrix sq_selection = selection.pow(2);
-            vector sq_selection_condensed = sq_selection.Sum(COL);
+            Matrix sq_selection = arma::pow(selection,2);
+            rvector sq_selection_condensed = arma::sum(sq_selection,COL);
     }
     while (static_cast<int>(selected_n.size()) < n_max){
         //select_from_n = np.delete(total_indices, selected_n)
@@ -119,7 +120,7 @@ std::vector<int> DiversitySelection(
                 sq_selection_condensed, N, select_from_n, n_atoms);
 
             // sq_selected_condensed += matrix[new_index_n] ** 2
-            sq_selection_condensed = sq_selection_condensed + pow(matrix[new_index_n], 2);
+            sq_selection_condensed = sq_selection_condensed + pow(matrix.row(new_index_n), 2);
         } else {
             // new_index_n = get_new_index_n(matrix, metric, selected_condensed, 
             //                               N, select_from_n)
@@ -129,7 +130,7 @@ std::vector<int> DiversitySelection(
 
         }
         // selected_condensed += matrix[new_index_n]
-        selected_condensed = selected_condensed + matrix[new_index_n];
+        selected_condensed = selected_condensed + matrix.row(new_index_n);
 
         // selected_n.append(new_index_n)
         selected_n.push_back(new_index_n);

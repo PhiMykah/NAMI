@@ -1,0 +1,45 @@
+g++ -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack -c Datatypes/DataContainers.cpp -o Datatypes/DataContainers.o
+g++ -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack -c Tools/BTS/Modules/EsimModules.cpp -o Tools/BTS/Modules/EsimModules.o
+g++ -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack -c FileIO/ReadNPY.cpp -o FileIO/ReadNPY.o
+g++ -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack -c Tools/BTS/MeanSquareDeviation.cpp -o Tools/BTS/MeanSquareDeviation.o
+g++ -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack -c Tools/BTS/ExtendedComparison.cpp -o Tools/BTS/ExtendedComparison.o
+g++ -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack -c Tools/BTS/ComplementarySimilarity.cpp -o Tools/BTS/ComplementarySimilarity.o
+Tools/BTS/ComplementarySimilarity.cpp: In function ‘Matrix CalculateCompSim(Matrix, Metric, int)’:
+Tools/BTS/ComplementarySimilarity.cpp:36:25: warning: comparison of integer expressions of different signedness: ‘uword’ {aka ‘long long unsigned int’} and ‘int’ [-Wsign-compare]
+   36 |     for (uword i = 0; i < N; i++){
+      |                       ~~^~~
+g++ -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack -c Tools/BTS/Medoid.cpp -o Tools/BTS/Medoid.o
+Tools/BTS/Medoid.cpp: In function ‘int CalculateMedoid(Matrix, Metric, int)’:
+Tools/BTS/Medoid.cpp:36:25: warning: comparison of integer expressions of different signedness: ‘uword’ {aka ‘long long unsigned int’} and ‘int’ [-Wsign-compare]
+   36 |     for (uword i = 0; i < N; i++){
+      |                       ~~^~~
+g++ -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack -c Tools/BTS/Outlier.cpp -o Tools/BTS/Outlier.o
+Tools/BTS/Outlier.cpp: In function ‘int CalculateOutlier(Matrix, Metric, int)’:
+Tools/BTS/Outlier.cpp:36:25: warning: comparison of integer expressions of different signedness: ‘uword’ {aka ‘long long unsigned int’} and ‘int’ [-Wsign-compare]
+   36 |     for (uword i = 0; i < N; i++){
+      |                       ~~^~~
+Tools/BTS/Outlier.cpp: In function ‘Matrix TrimOutliers(Matrix, int, Metric, int, Criterion)’:
+Tools/BTS/Outlier.cpp:132:29: warning: comparison of integer expressions of different signedness: ‘uword’ {aka ‘long long unsigned int’} and ‘int’ [-Wsign-compare]
+  132 |         for (uword i = 0; i < N; i++){
+      |                           ~~^~~
+Tools/BTS/Outlier.cpp:155:29: warning: comparison of integer expressions of different signedness: ‘uword’ {aka ‘long long unsigned int’} and ‘int’ [-Wsign-compare]
+  155 |         for (uword i = 0; i < N; i++){
+      |                           ~~^~~
+g++ -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack -c Tools/BTS/NewIndex.cpp -o Tools/BTS/NewIndex.o
+g++ -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack -c Tools/BTS/DiversitySelection.cpp -o Tools/BTS/DiversitySelection.o
+Tools/BTS/DiversitySelection.cpp: In function ‘std::vector<int, std::allocator<int> > DiversitySelection(Matrix, int, Metric, DiversitySeed, int)’:
+Tools/BTS/DiversitySelection.cpp:31:25: warning: comparison of integer expressions of different signedness: ‘uword’ {aka ‘long long unsigned int’} and ‘int’ [-Wsign-compare]
+   31 |     for (uword i = 0; i < n_total; i++)
+      |                       ~~^~~~~~~~~
+g++ -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack Datatypes/DataContainers.o Tools/BTS/Modules/EsimModules.o FileIO/ReadNPY.o Tools/BTS/MeanSquareDeviation.o Tools/BTS/ExtendedComparison.o Tools/BTS/ComplementarySimilarity.o Tools/BTS/Medoid.o Tools/BTS/Outlier.o Tools/BTS/DiversitySelection.o Tools/BTS/NewIndex.o main.cpp -o main
+main.cpp: In function ‘void OutputResults(std::string, Matrix, std::vector<Metric>, int, Matrix (*)(Matrix, Metric, int))’:
+main.cpp:52:26: warning: format ‘%i’ expects argument of type ‘int’, but argument 2 has type ‘long unsigned int’ [-Wformat=]
+   52 |         printf("Metric #%i: ", i+1);
+      |                         ~^     ~~~
+      |                          |      |
+      |                          int    long unsigned int
+      |                         %li
+cd Datatypes && rm -f *.o
+cd Tools/BTS && rm -f *.o
+cd Tools/BTS/Modules && rm -f *.o
+cd FileIO && rm -f *.o
