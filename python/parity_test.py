@@ -33,6 +33,8 @@ if __name__ == "__main__":
 
     tof_vals = [trim_outliers(matrix, float_trimmed, metric, N_atoms=N_atoms) for metric in metrics]
 
+    tofm_vals = [trim_outliers(matrix, float_trimmed, metric, N_atoms=N_atoms, criterion='sim_to_medoid') for metric in metrics]
+
     # dsm_vals = [diversity_selection(matrix, percentage, metric, start='medoid', N_atoms=N_atoms) for metric in metrics]
 
     # dso_vals = [diversity_selection(matrix, percentage, metric, start='outlier', N_atoms=N_atoms) for metric in metrics]
@@ -52,6 +54,7 @@ if __name__ == "__main__":
         ("Calculate Outlier", co_vals),
         ("Trim Outliers Integer", toi_vals),
         ("Trim Outliers Float", tof_vals),
+        ("Trim Outliers Float (MEDOID)", tof_vals),
         # ("Diversity Selection + NewIndex (Medoid)", dsm_vals),
         # ("Diversity Selection + NewIndex (Outlier)", dso_vals),
         # ("Diversity Selection + NewIndex (Random)", dsr_vals),

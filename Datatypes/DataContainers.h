@@ -17,7 +17,7 @@ typedef arma::frowvec rvector;
 // Armadillo matrix of indices implementation
 typedef arma::uvec index_vec; 
 
-typedef arma::urowvec uvec;
+typedef arma::urowvec index_rvec;
 
 // Sum all rows and columns of matrix to singular value
 #define MatSum(mat) arma::sum(arma::sum(mat, 0))

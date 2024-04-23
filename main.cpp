@@ -148,6 +148,10 @@ int main(int argc, char *argv[]) {
     OutputResults<Criterion>("Trim Outliers", matrix, metrics, percent_trimmed, n_atoms, criterion,
     static_cast<Matrix (*)(Matrix, float, Metric, int, Criterion)>(&TrimOutliers));
 
+    // Trim Outliers Results
+    OutputResults<Criterion>("Trim Outliers (MEDOID)", matrix, metrics, percent_trimmed, n_atoms, Criterion::SIM_TO_MEDOID,
+    static_cast<Matrix (*)(Matrix, float, Metric, int, Criterion)>(&TrimOutliers));
+
     // Diversity Selection Medoid Results
     // OutputResults<DiversitySeed>("DiversitySelection + NewIndex (MEDOID)", matrix, metrics,
     // percentage, n_atoms, DiversitySeed::MEDOID, DiversitySelection);

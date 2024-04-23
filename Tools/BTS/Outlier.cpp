@@ -82,7 +82,7 @@ Matrix TrimOutliers(
     Matrix matrix, float percent_trimmed, Metric metric, 
     int n_atoms, Criterion criterion){
     
-    int N = matrix.n_cols;
+    int N = matrix.n_rows;
     int cutoff = int(floor(N * percent_trimmed));
     
     return TrimOutliers(matrix, cutoff, metric, n_atoms, criterion);
@@ -130,16 +130,16 @@ Matrix TrimOutliers(
         // Remove the values from the medoid index of matrix
         matrix.shed_row(medoid_index);
     
-        uvec values(N);
-        for (uword i = 0; i < N; i++){
+        rvector values(N, arma::fill::zeros);
+        for (uword i = 0; i < matrix.n_rows; i++){
             values(i) = ExtendedComparison(matrix.row(i), medoid, metric, n_atoms); // data_type = full?
         }
 
         // Sort the values
-        uvec v_sorted = arma::sort(values);
+        index_vec sorted_indices = arma::sort_index(values);
 
         // Collect the indices of the last cutoff elements of the sorted list
-        uvec highest_indices = v_sorted.subvec(cutoff, v_sorted.size()-1);
+        index_vec highest_indices = sorted_indices.subvec(sorted_indices.size()-cutoff, sorted_indices.size()-1);
 
         // Remove the values at those indices of the original matrix
         Matrix newMatrix(matrix);
@@ -153,7 +153,7 @@ Matrix TrimOutliers(
         rvector sq_sum_total = arma::sum(arma::pow(matrix,2),COL);
         rvector comp_sims;
         float result;
-        uvec values(N, arma::fill::zeros);
+        rvector values (N, arma::fill::zeros);
         for (uword i = 0; i < N; i++){
             rvector c = c_sum - matrix.row(i);
             rvector sq = sq_sum_total - (arma::pow(matrix.row(i),2));
@@ -161,16 +161,16 @@ Matrix TrimOutliers(
             values(i) = result;
         }
 
-        // Sort the values
-        uvec v_sorted = arma::sort(values);
+        // Sort the indices of the values
+        index_vec sorted_indices = arma::sort_index(values);
 
         // Collect the indices of the first cutoff elements of the sorted list
-        uvec lowest_indices = v_sorted.subvec(0, cutoff);
-        
+        index_vec lowest_indices = sorted_indices.subvec(0, cutoff);
+
         // Remove the values at those indices of the original matrix
         Matrix newMatrix(matrix);
 
-        newMatrix.shed_rows(arma::unique(lowest_indices));
+        newMatrix.shed_rows(lowest_indices);
 
         return newMatrix;
     }
