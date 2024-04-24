@@ -13,6 +13,7 @@ CXX=g++
 CXXFLAGS= -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack
 DC = DataContainers
 ES = EsimModules
+IS = IsimModules
 INCLUDES = Datatypes/$(DC).o $(MOD)/$(ES).o
 BTS = $(BTS_PATH)/BTS.h
 
@@ -26,10 +27,11 @@ OUTL = Outlier
 DS = DiversitySelection
 NI = NewIndex
 
-BTS = $(DC).o $(ES).o $(READ).o $(MSD).o $(EC).o $(CS).o $(MED).o $(OUTL).o $(DS).o $(NI).o
+BTS = $(DC).o $(ES).o $(IS).o $(READ).o $(MSD).o $(EC).o $(CS).o $(MED).o $(OUTL).o $(DS).o $(NI).o
 
 OBJ_FILES = $(DT)/$(DC).o \
             $(MOD)/$(ES).o \
+			$(MOD)/$(IS).o \
 			$(IO)/$(READ).o \
             $(BTS_PATH)/$(MSD).o \
             $(BTS_PATH)/$(EC).o \
@@ -71,6 +73,9 @@ $(DC).o:
 # Esim Modules Object
 $(ES).o: $(DT)/$(DC).o
 	$(CXX) $(CXXFLAGS) -c $(MOD)/$(ES).cpp -o $(MOD)/$(ES).o
+
+$(IS).o: $(DT)/$(DC).o
+	$(CXX) $(CXXFLAGS) -c $(MOD)/$(IS).cpp -o $(MOD)/$(IS).o
 
 # Read NPY Object
 $(READ).o: $(DT)/$(DC).o

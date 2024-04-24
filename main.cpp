@@ -13,7 +13,7 @@ void OutputResults(
     
     for (long unsigned int i = 0; i < results.size(); i++)
     {
-        printf("Metric #%i: %.2f\n", static_cast<int>(i+1), results[i]);
+        printf("Metric \'%s\': %.2f\n", toStr(metrics[i]).c_str(), results[i]);
     }
     printf("\n");
 }
@@ -31,7 +31,7 @@ void OutputResults(
 
     for (long unsigned int i = 0; i < results.size(); i++)
     {
-        printf("Metric #%i: %.2f\n", static_cast<int>(i+1), results[i]);
+        printf("Metric \'%s\': %.2f\n", toStr(metrics[i]).c_str(), results[i]);
     }
     printf("\n");
 }
@@ -49,7 +49,7 @@ void OutputResults(
 
     for (long unsigned int i = 0; i < metrics.size(); i++)
     {
-        printf("Metric #%lu:\n", i+1);
+        printf("Metric \'%s\':\n", toStr(metrics[i]).c_str());
         results[i].brief_print();
         printf("\n");
     }
@@ -70,7 +70,7 @@ template <typename Enum> void OutputResults(
 
     for (long unsigned int i = 0; i < results.size(); i++)
     {
-        printf("Metric #%i:\n", static_cast<int>(i+1));
+        printf("Metric \'%s\':\n", toStr(metrics[i]).c_str());
         results[i].brief_print();
         printf("\n");
     }
@@ -90,7 +90,7 @@ template <typename T> void OutputResults(
     }
         for (long unsigned int i = 0; i < results.size(); i++)
     {
-        printf("Metric #%i:\n", static_cast<int>(i+1));
+        printf("Metric \'%s\':\n", toStr(metrics[i]).c_str());
         
         for (long unsigned int j = 0; j < results[i].size(); j++)
         {

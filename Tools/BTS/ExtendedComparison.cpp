@@ -57,7 +57,8 @@ float ExtendedComparison(
 
         return MSDCondensed(c_sum,sq_sum, N, n_atoms);
     } else {
-        Indices esim_dict = GenSimCounters(Matrix(c_sum), N, c_threshold, (int) w_factor);
+        ESIM::Indices esim_dict = ESIM::GenSimIndices(
+            Matrix(c_sum), N, c_threshold, (int) w_factor);
 
         switch (metric)
         {
@@ -112,7 +113,7 @@ c_threshold : float, optional
     Coincidence threshold. Defaults to None.
 w_factor : {'fraction', 'power_n'}, optional
     Type of weight function that will be used. Defaults to 'fraction'.
-    See `esim_modules.calculate_counters` for more information.
+    See `ISIM_MODULES_H:CalculateCounters` for more information.
 
 Returns 
 -------
@@ -126,7 +127,8 @@ float ExtendedComparison(
 {
     Matrix c_sum_Matrix(c_sum);
     
-    Indices esim_dict = GenSimCounters(c_sum_Matrix, N, c_threshold, (int) w_factor);
+    ESIM::Indices esim_dict = ESIM::GenSimIndices(
+        c_sum_Matrix, N, c_threshold, (int) w_factor);
 
     switch (metric)
     {

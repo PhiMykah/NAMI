@@ -32,7 +32,7 @@ Returns
 counters : Counters
     Struct object with the weighted and non-weighted counters.
 */
-Counters CalculateCounters(Matrix c_total, int n_objects, float c_threshold, int w_factor){
+ESIM::Counters ESIM::CalculateCounters(Matrix c_total, int n_objects, float c_threshold, int w_factor){
     if ((0 < c_threshold) && (c_threshold < 1)) { c_threshold *= n_objects; } 
     else {
         switch ((int) c_threshold)
@@ -103,14 +103,13 @@ Counters CalculateCounters(Matrix c_total, int n_objects, float c_threshold, int
     float w_p = total_w_sim + total_w_dis;
 
     // Return counters struct
-    Counters counters(
+    return ESIM::Counters(
         a, w_a, 
         d, w_d, 
         total_sim, total_w_sim,
         total_dis, total_w_dis, 
         p, w_p
     );
-    return counters;
 }
 
 /*
@@ -139,8 +138,8 @@ BUB: Baroni-Urbani-Buser, Fai: Faith, Gle: Gleason, Ja: Jaccard,
 JT: Jaccard-Tanimoto, RT: Rogers-Tanimoto, RR: Russel-Rao
 SM: Sokal-Michener, SSn: Sokal-Sneath n
 */
-Indices GenSimCounters(Matrix c_total, int n_objects, float c_threshold, int w_factor){
-    Counters counters = CalculateCounters(c_total, n_objects, c_threshold, w_factor);
+ESIM::Indices ESIM::GenSimIndices(Matrix c_total, int n_objects, float c_threshold, int w_factor){
+    ESIM::Counters counters = ESIM::CalculateCounters(c_total, n_objects, c_threshold, w_factor);
 
     float bub_nw = (std::pow((counters.w_a * counters.w_d), 0.5) + counters.w_a)/
              (std::pow((counters.a * counters.d), 0.5) + counters.a + counters.total_dis);
@@ -163,12 +162,11 @@ Indices GenSimCounters(Matrix c_total, int n_objects, float c_threshold, int w_f
     float ss2_nw = (2 * counters.total_w_sim)/
              (counters.p + counters.total_sim);
 
-    Indices indices(
+    return ESIM::Indices(
         bub_nw, fai_nw, gle_nw,
         ja_nw, jt_nw, rt_nw,
         rr_nw, sm_nw, ss1_nw, ss2_nw
     );
-    return indices;
 }
 
 // ******************************************

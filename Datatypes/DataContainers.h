@@ -35,6 +35,8 @@ enum class AXIS {COLUMN=0,ROW=1, NONE};
 //     Sokal-Sneath 2 coefficient (SS2).
 enum class Metric { MSD=0, BUB, FAI, GLE, JA, JT, RT, RR, SM, SS1, SS2 };
 
+std::string toStr(Metric);
+
 // Type of weight function that will be used. Default is 'FRACTION'.
 enum class WFactor { FRACTION=-1, NONE=0};
 

@@ -126,11 +126,25 @@ Matrix TrimOutliers(
 
     if (criterion == Criterion::SIM_TO_MEDOID) {
         int medoid_index = CalculateMedoid(matrix, metric, n_atoms);
+
+        // Validate medoid_index
+        if (medoid_index < 0) {
+            fprintf(stderr, "Medoid index %i for metric %s is out of range [%i, %llu), defaulting to 0\n",
+            medoid_index, toStr(metric).c_str(), 0, matrix.n_rows);
+            medoid_index = 0;
+        }
+        if ((medoid_index >= 0) && ((uword) medoid_index >= matrix.n_rows)){
+            fprintf(stderr, "Medoid index %i for metric %s is out of range [%i, %llu), defaulting to %llu\n",
+            medoid_index, toStr(metric).c_str(), 0, matrix.n_rows, matrix.n_rows -1);
+            medoid_index = matrix.n_rows - 1;
+        } 
+
         rvector medoid = matrix.row(medoid_index);
         // Remove the values from the medoid index of matrix
         matrix.shed_row(medoid_index);
-    
-        rvector values(N, arma::fill::zeros);
+
+        // Initialize values vector
+        rvector values(matrix.n_rows, arma::fill::zeros);
         for (uword i = 0; i < matrix.n_rows; i++){
             values(i) = ExtendedComparison(matrix.row(i), medoid, metric, n_atoms); // data_type = full?
         }
