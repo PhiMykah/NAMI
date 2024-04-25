@@ -2,9 +2,12 @@
 #define NANI_H 
 #include <map>
 #include "../../Datatypes/DataContainers.h"
+#include "mlpack.hpp"
 
 typedef std::map<std::string, float> dict;
 
+typedef mlpack::KMeans<mlpack::EuclideanDistance, mlpack::SampleInitialization, \
+        mlpack::MaxVarianceNewCluster, mlpack::NaiveKMeans, Matrix> MatKMeans;
 struct cluster_data
 {   
     cluster_data() {

@@ -11,7 +11,7 @@ metric : {'MSD', 'RR', 'JT', 'SM', etc}
     Metric used for extended comparisons. See `extended_comparison` for details.
 selected_condensed : vector
     Condensed sum of the selected fingerprints.
-n : int
+n : long unsigned int
     Number of selected objects.
 select_from_n : 1D array-like
     Indices of the objects to select from.
@@ -23,16 +23,17 @@ Returns
 int
     index of the new fingerprint to add to the selected indices.
 */
-int GetNewIndexN(Matrix matrix, Metric metric, rvector select_condensed,
-    int N, std::vector<int> select_from_n, int n_atoms)
+uword GetNewIndexN(Matrix matrix, Metric metric, rvector select_condensed,
+    uword N, index_vec select_from_n, int n_atoms)
 {
     float sim_index;
-    int n_total = N + 1;
-    int min_value = INT_MIN;
-    int index = matrix.n_cols + 1;
+    uword n_total = N + 1;
+    float min_value = -INFINITY;
+    uword index = matrix.n_rows + 1;
+    rvector sum;
 
-    for (long unsigned int i = 0; i < select_from_n.size(); i++){
-        rvector sum = select_condensed + matrix.row(i);
+    for (uword i = 0; i < select_from_n.size(); i++){
+        sum = select_condensed + matrix.row(i);
         // The extended comparison call may not be the right one here, check to see
         sim_index = ExtendedComparison(
             sum, metric, n_total, n_atoms
@@ -62,7 +63,7 @@ sq_selected_condensed : vector
     Condensed sum of the squared selected fingerprints. Defaults to None.
 n : int
     Number of selected objects.
-select_from_n : 1D array-like
+select_from_n : vector of unsigned ints
     Indices of the objects to select from.
 
 N_atoms : int, optional
@@ -73,20 +74,20 @@ Returns
 int
     index of the new fingerprint to add to the selected indices.
 */
-int GetNewIndexN(Matrix matrix, Metric metric, rvector select_condensed,
-    rvector sq_selected_condensed, int N, std::vector<int> select_from_n,
+uword GetNewIndexN(Matrix matrix, Metric metric, rvector select_condensed,
+    rvector sq_selected_condensed, uword N, index_vec select_from_n,
     int n_atoms)
 {
     float sim_index;
     int n_total = N + 1;
-    int min_value = INT_MIN;
-    int index = matrix.n_cols + 1;
+    float min_value = -INFINITY;
+    uword index = matrix.n_rows + 1;
 
-    for (long unsigned int i = 0; i < select_from_n.size(); i++){
+    for (uword i = 0; i < select_from_n.size(); i++){
         // The extended comparison call may not be the right one here, check to see
         sim_index = ExtendedComparison(
-            (rvector)(select_condensed + matrix.row(i)), 
-            (rvector)(sq_selected_condensed + (arma::pow(matrix.row(i),2))), 
+            (select_condensed + matrix.row(i)), 
+            (sq_selected_condensed + (arma::pow(matrix.row(i),2))), 
             metric, n_total, n_atoms
             );
 

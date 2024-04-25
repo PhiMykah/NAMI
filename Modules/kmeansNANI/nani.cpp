@@ -19,59 +19,77 @@ KmeansNANI::~KmeansNANI()
 
 void KmeansNANI::Clear()
 {
+    this->m_data = Matrix();
+    this->n_clusters = 1;
+    this->m_metric = Metric::MSD;
+    this->n_atoms = 1;
+    this->m_initiator = Initiator::COMP_SIM;
+    this->percentage = 100;
 }
 
 Matrix KmeansNANI::InitiateKmeans()
 {
-    std::vector<int> initiators_indices;
+    index_vec initiators_indices;
 
     switch (this->m_initiator)
     {
     case Initiator::DIV_SELECT:
         initiators_indices = DiversitySelection(this->m_data, this->percentage, this->m_metric, DiversitySeed::MEDOID, this->n_atoms);
-        return this->m_data[initiators_indices];
+        return this->m_data.rows(initiators_indices);
     case Initiator::VANILLA_KMEANS:
         // initiators, indices = kmeans_plusplus(self.data, self.n_clusters, 
         //                                           random_state=None, n_local_trials=1)
-        break;
+        using namespace mlpack;
+        arma::mat initiators;
+        MatKMeans kmeans;
+        kmeans.Cluster(this->m_data, this->n_clusters, initiators);
+        
+        return arma::conv_to<Matrix>::from(initiators);
+
     }
 
-    int n_total = this->m_data.M;
-    int n_max = (int)(n_total * this->percentage / 100);
+    uword n_total = this->m_data.n_rows;
+    uword n_max = (uword)(n_total * this->percentage / 100);
     Matrix comp_sim = CalculateCompSim(this->m_data, this->m_metric, this->n_atoms);
     Matrix sorted_comp_sim = comp_sim;
-    if (sorted_comp_sim.M >= 2) {
+    if (sorted_comp_sim.n_cols >= 2) {
         // Matrix sorted_comp_sim = sorted(comp_sim, key=lambda item: item[1], reverse=True);
-        sorted(sorted_comp_sim, [](vector v)->float{return v[1];}, 0, sorted_comp_sim.M-1, true);
+        sortRows(sorted_comp_sim, [](rvector v)->float{return v[1];}, 0, sorted_comp_sim.n_cols-1, true);
     } else {
         fprintf(stderr, "Warning: Comparison Similarity Matrix has size of %i, \
-                        comparison uses first element of vector.", sorted_comp_sim.M);
-        sorted(sorted_comp_sim, [](vector v)->float{return v[0];}, 0, sorted_comp_sim.M-1, true);
+                        comparison uses first element of vector.", sorted_comp_sim.n_cols);
+        sortRows(sorted_comp_sim, [](rvector v)->float{return v[0];}, 0, sorted_comp_sim.n_cols-1, true);
     }
 
-    std::vector<int> total_comp_indices;
-    int i = 0;
+    index_vec total_comp_indices(n_max);
+
 
     // vector total_comp_sim_indices = [int(i[0]) for i in sorted_comp_sim][:n_max];
-    while (i < n_max)
+    for (uword i = 0; i < n_max; i++)
     {
-        total_comp_indices.push_back((int) sorted_comp_sim[i][0]);
+        total_comp_indices(i) = (int)sorted_comp_sim(i, 0);
     }
 
-    Matrix top_cc_data = this->m_data[total_comp_indices];
+    Matrix top_cc_data = this->m_data.rows(total_comp_indices);
     
     initiators_indices = DiversitySelection(top_cc_data, 100, this->m_metric, DiversitySeed::MEDOID, this->n_atoms);
 
-    return top_cc_data[initiators_indices];
+    return top_cc_data.rows(initiators_indices);
 }
 
 cluster_data KmeansNANI::KmeansClustering(Matrix initiators)
 {
+
     return cluster_data();
 }
 
 cluster_data KmeansNANI::KmeansClustering(Initiator initiator)
 {
+    // int n_init = 1;
+    // using namespace mlpack;
+    // arma::mat initiators;
+    // MatKMeans kmeans;
+    // kmeans.Cluster(this->m_data, this->n_clusters, initiators);
     return cluster_data();
 }
 

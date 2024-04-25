@@ -20,28 +20,22 @@ Returns
 list
     List of indices of the selected data.
 */
-std::vector<int> DiversitySelection(
+index_vec DiversitySelection(
     Matrix matrix, int percentage, Metric metric,
     DiversitySeed start, int n_atoms)
 {
-    std::vector<int> selected_n;
-    uword n_total = matrix.n_cols;
-    std::vector<int> total_indices;
-
-    for (uword i = 0; i < n_total; i++)
-    {
-        total_indices.push_back(i);
-    }
+    index_vec selected_n(1);
+    uword n_total = matrix.n_rows;
 
     if (start == DiversitySeed::OUTLIER){
         int seed = CalculateOutlier(matrix, metric, n_atoms);
-        selected_n.assign({seed});
+        selected_n(0) = seed;
     } else if (start == DiversitySeed::RANDOM){
         int seed = rand() % n_total;
-        selected_n.assign({seed});
+        selected_n(0) = seed;
     } else {
         int seed = CalculateMedoid(matrix, metric, n_atoms);
-        selected_n.assign({seed});
+        selected_n(0) = seed;
     }
      
     return DiversitySelection(matrix, percentage, metric, selected_n, n_atoms);
@@ -67,25 +61,21 @@ Returns
 list
     List of indices of the selected data.
 */
-std::vector<int> DiversitySelection(
+index_vec DiversitySelection(
     Matrix matrix, int percentage, Metric metric,
-    std::vector<int> start, int n_atoms)
+    index_vec start, int n_atoms)
 {   
     // Variable declarations 
-    std::vector<int> selected_n = start;
-    std::vector<int> select_from_n;
-    int new_index_n;
+    index_vec selected_n = start;
+    index_vec select_from_n;
+    uword new_index_n;
     rvector sq_selection_condensed;
-    int n_total = matrix.n_cols;
-    std::vector<int> total_indices;
+    uword n_total = matrix.n_rows;
+    uword prev_size;
+    index_vec total_indices = arma::regspace<index_vec>(0, n_total-1);
 
-    for (int i = 0; i < n_total; i++)
-    {
-        total_indices.push_back(i);
-    }
-
-    int N = static_cast<int>(selected_n.size()); 
-    int n_max = int(floor(n_total * percentage / 100));
+    uword N = selected_n.size(); 
+    uword n_max = (uword)floor(n_total * percentage / 100);
 
     if (n_max > n_total){n_max = n_total;}
 
@@ -101,14 +91,9 @@ std::vector<int> DiversitySelection(
             Matrix sq_selection = arma::pow(selection,2);
             rvector sq_selection_condensed = arma::sum(sq_selection,COL);
     }
-    while (static_cast<int>(selected_n.size()) < n_max){
+    while (selected_n.size() < n_max){
         //select_from_n = np.delete(total_indices, selected_n)
-        total_indices.erase(std::remove_if(total_indices.begin(), total_indices.end(), 
-        [total_indices](int val)->bool{ 
-            for (long unsigned int i = 0; i < total_indices.size(); i++) {
-                if (val == total_indices[i]) {return true;}
-                } return false; 
-            }), total_indices.end());
+        total_indices.shed_cols(selected_n);
         select_from_n = total_indices;
         
         if (metric == Metric::MSD){
@@ -133,10 +118,12 @@ std::vector<int> DiversitySelection(
         selected_condensed = selected_condensed + matrix.row(new_index_n);
 
         // selected_n.append(new_index_n)
-        selected_n.push_back(new_index_n);
+        prev_size = selected_n.size();
+        selected_n.resize(prev_size+1);
+        selected_n(prev_size) = new_index_n;
 
         // n = len(selected_n)
-        N = static_cast<int>(selected_n.size());
+        N = selected_n.size();
     }
 
     

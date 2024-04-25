@@ -51,4 +51,9 @@ enum class DiversitySeed { MEDOID=0, OUTLIER, RANDOM, LIST };
 // Alignment methods used by functions
 enum class AlignMethod { UNI=0, KRON, UNIFORM, KRONECKER };
 
+// ****************************
+// Additional Matrix Operations
+// ****************************
+
+void sortRows(Matrix mat, float (*key)(rvector v), uword l_index, uword r_index, bool reverse = false); 
 #endif // !DATA_CONTAINERS_H
