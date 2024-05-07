@@ -3,19 +3,24 @@
 # ---------
 DT = Datatypes
 BTS_PATH = Tools/BTS
-MOD = $(BTS_PATH)/Modules
+MOD = $(BTS_PATH)/$(MMOD)
+MMOD = Modules
 IO = FileIO
 # ---------
 # VARIABLES
 # ---------
 
 CXX=g++
-CXXFLAGS= -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack
+CXXFLAGS= -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack -fopenmp
 DC = DataContainers
 ES = EsimModules
-IS = IsimModules
+# IS = IsimModules
 INCLUDES = Datatypes/$(DC).o $(MOD)/$(ES).o
 BTS = $(BTS_PATH)/BTS.h
+
+# Module variables
+KMN = kmeansNANI
+NN = nani
 
 # Algorithm Variables
 MSD = MeanSquareDeviation
@@ -27,11 +32,10 @@ OUTL = Outlier
 DS = DiversitySelection
 NI = NewIndex
 
-BTS = $(DC).o $(ES).o $(IS).o $(READ).o $(MSD).o $(EC).o $(CS).o $(MED).o $(OUTL).o $(DS).o $(NI).o
+BTS = $(DC).o $(ES).o $(READ).o $(MSD).o $(EC).o $(CS).o $(MED).o $(OUTL).o $(DS).o $(NI).o $(NN).o #$(IS).o 
 
 OBJ_FILES = $(DT)/$(DC).o \
             $(MOD)/$(ES).o \
-			$(MOD)/$(IS).o \
 			$(IO)/$(READ).o \
             $(BTS_PATH)/$(MSD).o \
             $(BTS_PATH)/$(EC).o \
@@ -39,7 +43,9 @@ OBJ_FILES = $(DT)/$(DC).o \
             $(BTS_PATH)/$(MED).o \
             $(BTS_PATH)/$(OUTL).o \
             $(BTS_PATH)/$(DS).o \
-            $(BTS_PATH)/$(NI).o
+            $(BTS_PATH)/$(NI).o \
+			$(MMOD)/$(KMN)/$(NN).o
+			# $(MOD)/$(IS).o
 
 # ----------------
 # MAKEFILE SCRIPTS
@@ -55,6 +61,7 @@ clean:
 	cd $(BTS_PATH) && rm -f *.o
 	cd $(MOD) && rm -f *.o
 	cd $(IO) && rm -f *.o
+	cd $(MMOD) && rm -f *.o
 
 # datatest: $(DC).o
 # 	$(CXX) $(CXXFLAGS) $(DT)/$(DC).o data_containers_test.cpp -o datatest
@@ -66,6 +73,9 @@ iotest: $(DC).o $(READ).o
 	$(CXX) $(CXXFLAGS) $(DT)/$(DC).o $(IO)/$(READ).o io_test.cpp -o io_test
 	make clean
 
+kmeanstest: $(BTS)
+	$(CXX) $(CXXFLAGS) $(OBJ_FILES) kmeans_test.cpp -o kmeans_test
+	
 # Data Types and Containers Object
 $(DC).o:
 	$(CXX) $(CXXFLAGS) -c Datatypes/$(DC).cpp -o Datatypes/$(DC).o
@@ -132,3 +142,11 @@ $(NI).o: $(EC).o $(INCLUDES)
 #	- Default includes
 $(DS).o: $(OUTL).o $(MED).o $(NI).o $(INCLUDES)
 	$(CXX) $(CXXFLAGS) -c $(BTS_PATH)/$(DS).cpp -o $(BTS_PATH)/$(DS).o
+
+# kmeansNANI Nani Object
+# Requires:
+#	- Default includes
+#	- Complimentary Similarities
+#	- Diversity Selection
+$(NN).o: $(DS).o $(CS).o $(INCLUDES)
+	$(CXX) $(CXXFLAGS) -c $(MMOD)/$(KMN)/$(NN).cpp -o $(MMOD)/$(KMN)/$(NN).o

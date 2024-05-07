@@ -13,6 +13,6 @@ index_vec DiversitySelection(
 // Selects a diverse subset of the data using the complementary similarity.
 index_vec DiversitySelection(
     Matrix matrix, int percentage, Metric metric,
-    std::vector<int> start, int n_atoms = 1);
+    index_vec start, int n_atoms = 1);
     
 #endif // !DIVERSITY_SELECTION_H

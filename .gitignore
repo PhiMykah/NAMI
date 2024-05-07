@@ -54,6 +54,8 @@ main
 datatest
 io_test
 logictest
+kmeans_test
 
 # Testing Files
 output/*
+*.csv
