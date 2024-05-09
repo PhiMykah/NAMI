@@ -26,18 +26,33 @@ index_vec DiversitySelection(
 {
     index_vec selected_n(1);
     uword n_total = matrix.n_rows;
+    int seed;
 
-    if (start == DiversitySeed::OUTLIER){
-        int seed = CalculateOutlier(matrix, metric, n_atoms);
-        selected_n(0) = seed;
-    } else if (start == DiversitySeed::RANDOM){
-        int seed = rand() % n_total;
-        selected_n(0) = seed;
-    } else {
-        int seed = CalculateMedoid(matrix, metric, n_atoms);
-        selected_n(0) = seed;
+    switch (start)
+    {
+    case DiversitySeed::OUTLIER:
+        seed = CalculateOutlier(matrix, metric, n_atoms);
+        break;
+    case DiversitySeed::RANDOM:
+        seed = rand() % n_total;
+    default:
+        seed = CalculateMedoid(matrix, metric, n_atoms);
+        break;
     }
-     
+
+    if ((seed > 0) && ((uword) seed >= n_total)) {
+        fprintf(stderr, "selected_n value %i for metric %s is out of range [%i, %llu), defaulting to %llu\n", 
+                seed, toStr(metric).c_str(), 0, n_total, n_total-1);
+        seed = n_total - 1;
+    }
+    if (seed < 0) {
+        fprintf(stderr, "selected_n value %i for metric %s is out of range [%i, %llu), defaulting to %i\n", 
+                seed, toStr(metric).c_str(), 0, n_total, 0);
+        seed = 0;
+    }
+
+    selected_n(0) = seed;
+
     return DiversitySelection(matrix, percentage, metric, selected_n, n_atoms);
 }
 
@@ -67,7 +82,6 @@ index_vec DiversitySelection(
 {   
     // Variable declarations 
     index_vec selected_n = start;
-    index_vec select_from_n;
     uword new_index_n;
     rvector sq_selection_condensed;
     uword n_total = matrix.n_rows;
@@ -88,14 +102,14 @@ index_vec DiversitySelection(
     rvector selected_condensed = arma::sum(selection,COL);
 
     if (metric == Metric::MSD) {
-            Matrix sq_selection = arma::pow(selection,2);
-            rvector sq_selection_condensed = arma::sum(sq_selection,COL);
+            sq_selection_condensed = arma::sum(arma::pow(selection,2),COL);
     }
     while (selected_n.size() < n_max){
         //select_from_n = np.delete(total_indices, selected_n)
-        total_indices.shed_cols(selected_n);
-        select_from_n = total_indices;
-        
+        //Removing rows each time leads to issues 
+        index_vec select_from_n(total_indices);
+        select_from_n.shed_rows(selected_n); 
+
         if (metric == Metric::MSD){
             // new_index_n = get_new_index_n(matrix, metric=metric, selected_condensed,
             //                               sq_selected_condensed, N, 

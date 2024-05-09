@@ -14,7 +14,7 @@ def output_results(title : str, results : list):
         print(f"Metric {pad}\'{metrics[i]}\': {results[i]}")
     print("\n")
 
-if __name__ == "__main__":
+def main():
     matrix = np.load(FILE)
     int_trimmed = 3
     float_trimmed = .5
@@ -65,3 +65,7 @@ if __name__ == "__main__":
 
     for test in tests:
         output_results(test[0], test[1])
+
+
+if __name__ == "__main__":
+    main()

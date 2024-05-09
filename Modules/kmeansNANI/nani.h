@@ -38,8 +38,36 @@ struct scores
 };
 
 // Initiators for the k-means algorithm
-enum class Initiator { COMP_SIM = 0, DIV_SELECT, VANILLA_KMEANS, RANDOM, };
+enum class Initiator { COMP_SIM = 0, DIV_SELECT, KMEANS, VANILLA_KMEANS, RANDOM, };
 
+/*
+K-means algorithm with the N-Ary Natural Initialization (NANI).
+    
+Attributes
+----------
+m_data : 2D matrix (n_samples, n_features)
+    Input dataset.
+n_clusters : int
+    Number of clusters.
+m_metric : Metric enum {'MSD', 'RR', 'JT', etc}
+    Metric used for extended comparisons. 
+    See `...Datatypes.DataContainers.h` for all available metrics.
+n_atoms : int
+    Number of atoms.
+m_initiator : Initiator enum {COMP_SIM, DIV_SELECT, VANILLA_KMEANS, RANDOM}
+    Type of initiator selection. 
+n_iter : int
+    Max number of iterations run.
+percentage : int
+    Percentage of the dataset to be used for the initial selection of the 
+    initial centers. Default is 10.
+m_labels : vector of length n_samples
+    Labels of each point.
+centers : 2D matrix (n_clusters, n_features)
+    Cluster centers.
+cluster_dict : dict
+    Dictionary of the clusters and their corresponding indices.
+*/
 class KmeansNANI
 {
 public:
@@ -63,7 +91,7 @@ public:
 
     scores ComputeScores(vector labels);
 
-    void WriteCentroids(Matrix centers);
+    void WriteCentroids(Matrix centers, std::string filename = "centroids.csv");
 
     // cluster_data ExecuteKmeansAll();
 

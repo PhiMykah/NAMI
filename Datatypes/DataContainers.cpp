@@ -37,8 +37,8 @@ void sortRows(Matrix mat, float (*key)(rvector v), uword l_index, uword r_index,
 {   
     auto greater_than = [](float val, float pivot)->bool{return val > pivot;};
     auto less_than = [](float val, float pivot)->bool{return val < pivot;};
-    auto i_comparison = less_than;
-    auto j_comparison = greater_than;
+    bool (*i_comparison)(float, float) = less_than;
+    bool (*j_comparison)(float, float) = greater_than;
     uword i, j, m_index;
     float pivot;
     i = l_index;
@@ -47,8 +47,8 @@ void sortRows(Matrix mat, float (*key)(rvector v), uword l_index, uword r_index,
     pivot = key(mat.row(m_index));
 
     if (reverse == true) {
-        auto i_comparison = greater_than;
-        auto j_comparison = less_than;
+        i_comparison = greater_than;
+        j_comparison = less_than;
     }
 
     while(i < r_index || j > l_index){

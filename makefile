@@ -61,7 +61,7 @@ clean:
 	cd $(BTS_PATH) && rm -f *.o
 	cd $(MOD) && rm -f *.o
 	cd $(IO) && rm -f *.o
-	cd $(MMOD) && rm -f *.o
+	cd $(MMOD) && rm -rf */*.o
 
 # datatest: $(DC).o
 # 	$(CXX) $(CXXFLAGS) $(DT)/$(DC).o data_containers_test.cpp -o datatest

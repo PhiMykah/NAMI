@@ -7,28 +7,43 @@ int main(int argc, char const *argv[])
     int n_clusters = 4;
     int n_atoms = 10;
     uword n_iter = 10;
-    ushort percentage = 100;
-    Initiator initiator = Initiator::RANDOM;
+    ushort percentage = 10;
+    int test_count = 3;
+    std::string tests[test_count] = {"****************\nRandom Initiator\n****************\n",
+                                    "******************\nComp Sim Initiator\n******************\n",
+                                   "********************\nDiv Select Initiator\n********************\n"};
+    std::string filenames[test_count] = {"output/random_centroids.csv",
+                                         "output/comp_sim_centroids.csv",
+                                         "output/div_sel_centroids.csv"};
+
+    Initiator initiators[test_count] = {Initiator::RANDOM, Initiator::COMP_SIM, Initiator::DIV_SELECT};
     Metric metric = Metric::MSD;
     Matrix matrix = loadNPYFile(file);
-    KmeansNANI kmn(matrix, n_clusters, metric, 
-                   n_atoms, initiator, n_iter, percentage);
 
-    cluster_data data = kmn.KmeansClustering();
-
-    data.labels.t().brief_print("Labels:");
-    data.centers.brief_print("Centroids:");
-    std::cout << "Max number of iterations: " << data.n_iter << std::endl;
-
-    cluster_indices list = kmn.CreateClusterList(data.labels);
-
-    for (uword i = 0; i < list.n_elem; i++)
+    for (int i = 0; i < test_count; i++)
     {   
-        printf("Cluster #%llu", i);
-        list(i).t().brief_print();
+        std::cout << tests[i];
+
+        KmeansNANI kmn(matrix, n_clusters, metric, 
+                   n_atoms, initiators[i], n_iter, percentage);
+
+        cluster_data data = kmn.KmeansClustering();
+
+        data.labels.t().brief_print("Labels:");
+
+        data.centers.brief_print("Centroids:");
+        std::cout << "Max number of iterations: " << data.n_iter << std::endl;
+
+        cluster_indices list = kmn.CreateClusterList(data.labels);
+
+        for (uword i = 0; i < list.n_elem; i++)
+        {   
+            printf("Cluster #%llu", i);
+            list(i).t().brief_print();
+        }
+
+        kmn.WriteCentroids(data.centers, filenames[i]);
     }
 
-    kmn.WriteCentroids(data.centers);
-    
     return 0;
 }
