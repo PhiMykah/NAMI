@@ -140,6 +140,4 @@ namespace mlpack {
 }
 scores ComputeDataScores(Matrix data, vector labels);
 vector GenerateLabels(Matrix data, Matrix centroids);
-float CalinskiHarabaszScore(Matrix data, vector labels);
-float DaviesBouldinScore(Matrix data, vector labels);
 #endif // !NANI_H
