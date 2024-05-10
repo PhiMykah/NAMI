@@ -23,20 +23,6 @@ struct cluster_data
     uword n_iter;
 };
 
-struct scores
-{
-    scores(){
-        ch = 0.0;
-        db = 0.0;
-    }
-    scores(float ch_, float db_) {
-        ch = ch_;
-        db = db_;
-    }
-    float ch;
-    float db;
-};
-
 // Initiators for the k-means algorithm
 enum class Initiator { COMP_SIM = 0, DIV_SELECT, KMEANS, VANILLA_KMEANS, RANDOM, };
 
