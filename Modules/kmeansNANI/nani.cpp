@@ -87,24 +87,15 @@ Matrix KmeansNANI::InitiateKmeans(Initiator initiator)
     // Comp sim / default
     uword n_total = this->m_data.n_rows;
     uword n_max = (uword)(n_total * this->percentage / 100);
-    Matrix comp_sim = CalculateCompSim(this->m_data, this->m_metric, this->n_atoms);
-    Matrix sorted_comp_sim = comp_sim;
-    if (sorted_comp_sim.n_cols >= 2) {
-        // Matrix sorted_comp_sim = sorted(comp_sim, key=lambda item: item[1], reverse=True);
-        sortRows(sorted_comp_sim, [](rvector v)->float{return v[1];}, 0, sorted_comp_sim.n_cols-1, true);
-    } else {
-        fprintf(stderr, "Warning: Comparison Similarity Matrix has size of %llu, \
-                        comparison uses first element of vector.", sorted_comp_sim.n_cols);
-        sortRows(sorted_comp_sim, [](rvector v)->float{return v[0];}, 0, sorted_comp_sim.n_cols-1, true);
-    }
+    vector comp_sim = CalculateCompSim(this->m_data, this->m_metric, this->n_atoms);
+    index_vec sorted_comp_sim = arma::sort_index(comp_sim, "descend");
 
     index_vec total_comp_indices(n_max);
-
 
     // vector total_comp_sim_indices = [int(i[0]) for i in sorted_comp_sim][:n_max];
     for (uword i = 0; i < n_max; i++)
     {
-        total_comp_indices(i) = (int)sorted_comp_sim(i, 0);
+        total_comp_indices(i) = sorted_comp_sim(i);
     }
 
     Matrix top_cc_data = this->m_data.rows(total_comp_indices);

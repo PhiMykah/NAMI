@@ -21,7 +21,7 @@ int
 int CalculateMedoid(Matrix matrix, Metric metric, int n_atoms){
     if (metric == Metric::MSD) {
         // Returns the indices where the maximum value occurs
-        rvector csim = CSimMSD(matrix, n_atoms).as_row();
+        vector csim = CSimMSD(matrix, n_atoms);
         uword max = csim.index_max();
         return max;
     }

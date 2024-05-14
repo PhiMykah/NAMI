@@ -19,7 +19,10 @@ Returns
 Matrix
     Matrix of complementary similarities for each object.
 */
-Matrix CalculateCompSim(Matrix matrix, Metric metric, int n_atoms){
+vector CalculateCompSim(Matrix matrix, Metric metric, int n_atoms){
+    if ((metric == Metric::MSD) && (n_atoms == 1)) {
+        fprintf(stderr, "n_atoms is being specified as 1. Please change if n_atoms is not 1.\n");
+    } 
     if (metric == Metric::MSD) {
         return CSimMSD(matrix, n_atoms);
     }
@@ -39,12 +42,12 @@ Matrix CalculateCompSim(Matrix matrix, Metric metric, int n_atoms){
             ExtendedComparison(diff, metric, N-1, n_atoms);
     }
 
-    return Matrix(values);
+    return values.t();
 }
 
 
 // Simplified complementary similarity calculation if metric is MSD
-Matrix CSimMSD(Matrix matrix, int n_atoms){
+vector CSimMSD(Matrix matrix, int n_atoms){
     int N = matrix.n_rows;
     Matrix sq_data = arma::pow(matrix,2);
 
@@ -63,11 +66,11 @@ Matrix CSimMSD(Matrix matrix, int n_atoms){
         comp_sqsum.row(i) = sq_sum - sq_data.row(i);
     }
 
-    Matrix total(arma::sum(2 * ((N-1) * comp_sqsum - arma::pow(comp_csum,2)),ROW));
+    vector total(arma::sum(2 * ((N-1) * comp_sqsum - arma::pow(comp_csum,2)),ROW));
 
-    Matrix comp_msd = total / std::pow(N-1, 2);
+    vector comp_msd = total / std::pow(N-1, 2);
 
-    Matrix norm_msd = comp_msd / n_atoms;
+    vector norm_msd = comp_msd / n_atoms;
 
     return norm_msd;
 }
