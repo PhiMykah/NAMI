@@ -283,7 +283,15 @@ filename : std::string
 */
 void KmeansNANI::WriteCentroids(Matrix centers, std::string filename)
 {
-    bool status;
+    if (centers.is_empty()) {return;}
+    
+    bool status = true;
+
+    std::filesystem::path path(filename);
+
+    if (path.has_parent_path()) {
+        status = std::filesystem::create_directories(path.parent_path().string());
+    }
 
     arma::field<std::string> header(centers.n_cols);
     if (centers.n_cols >= 2) {
@@ -293,7 +301,6 @@ void KmeansNANI::WriteCentroids(Matrix centers, std::string filename)
     } else {
         centers.save(arma::csv_name(filename, header, arma::csv_opts::no_header));
     }
-   
 
     if (status == false) {
         std::fprintf(stderr, "Failed to save centroids to file!\n");
