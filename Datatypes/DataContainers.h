@@ -1,6 +1,7 @@
 #ifndef DATA_CONTAINERS_H
 #define DATA_CONTAINERS_H
 #include <armadillo>
+#include <filesystem>
 
 // Armadillo unsigned integer type
 typedef arma::uword uword;

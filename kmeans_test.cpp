@@ -12,9 +12,10 @@ int main(int argc, char const *argv[])
     std::string tests[test_count] = {"****************\nRandom Initiator\n****************\n",
                                     "******************\nComp Sim Initiator\n******************\n",
                                    "********************\nDiv Select Initiator\n********************\n"};
-    std::string filenames[test_count] = {"output/random_centroids.csv",
-                                         "output/comp_sim_centroids.csv",
-                                         "output/div_sel_centroids.csv"};
+    std::string rc = "output/random_centroids.csv";
+    std::string csc = "output/comp_sim_centroids.csv";
+    std::string dsc = "output/div_sel_centroids.csv";
+    std::string filenames[test_count] = {rc, csc, dsc};
 
     Initiator initiators[test_count] = {Initiator::RANDOM, Initiator::COMP_SIM, Initiator::DIV_SELECT};
     Metric metric = Metric::MSD;

@@ -11,7 +11,7 @@ IO = FileIO
 # ---------
 
 CXX=g++
-CXXFLAGS= -g -Wall -std=c++11 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack -fopenmp
+CXXFLAGS= -g -Wall -std=c++17 -DARMA_DONT_USE_WRAPPER -lopenblas -llapack -fopenmp
 DC = DataContainers
 ES = EsimModules
 # IS = IsimModules

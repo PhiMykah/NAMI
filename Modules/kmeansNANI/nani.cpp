@@ -283,18 +283,25 @@ filename : std::string
 */
 void KmeansNANI::WriteCentroids(Matrix centers, std::string filename)
 {
-    bool status;
+    bool status = true;
 
-    arma::field<std::string> header(centers.n_cols);
-    if (centers.n_cols >= 2) {
-    header(0) = std::string("Number of clusters: ") + std::to_string(this->n_clusters);
-    header(1) = std::string("Number of iterations: ") + std::to_string(this->n_iter);
-    status = centers.save(arma::csv_name(filename, header));
-    } else {
-        centers.save(arma::csv_name(filename, header, arma::csv_opts::no_header));
+    std::filesystem::path path(filename);
+
+    if (path.has_parent_path()) {
+        status = std::filesystem::create_directories(path.parent_path().string());
     }
-   
 
+    if (status) {
+        arma::field<std::string> header(centers.n_cols);
+        if (centers.n_cols >= 2) {
+        header(0) = std::string("Number of clusters: ") + std::to_string(this->n_clusters);
+        header(1) = std::string("Number of iterations: ") + std::to_string(this->n_iter);
+        status = centers.save(arma::csv_name(filename, header));
+        } else {
+            header(0) = std::string("Number of clusters: ") + std::to_string(this->n_clusters) + std::string(" & ") + std::string("Number of iterations: ") + std::to_string(this->n_iter);
+            centers.save(arma::csv_name(filename, header));
+        }
+    }
     if (status == false) {
         std::fprintf(stderr, "Failed to save centroids to file!\n");
     }
