@@ -102,7 +102,13 @@ Matrix KmeansNANI::InitiateKmeans(Initiator initiator)
     
     initiators_indices = DiversitySelection(top_cc_data, 100, this->m_metric, DiversitySeed::MEDOID, this->n_atoms);
 
-    return top_cc_data.rows(initiators_indices);
+    Matrix result = top_cc_data.rows(initiators_indices);
+
+    if ((int)result.n_cols < this->n_clusters) {
+        throw std::length_error("The number of initiators is less than the number of clusters. Try increasing the percentage.\n");
+    }
+
+    return result;
 }
 
 
@@ -176,7 +182,8 @@ cluster_data
 cluster_data KmeansNANI::KmeansClustering(Initiator initiator)
 {
     Matrix centroids;
-    
+    Matrix data = this->m_data.t();
+
     switch (initiator)
     {
         case Initiator::DIV_SELECT:
@@ -184,12 +191,13 @@ cluster_data KmeansNANI::KmeansClustering(Initiator initiator)
         case Initiator::VANILLA_KMEANS:
         case Initiator::KMEANS:
             centroids = this->InitiateKmeans(initiator);
-            arma::kmeans(centroids, this->m_data, this->n_clusters, 
+            centroids = centroids.rows(0, this->n_clusters-1).t();
+            arma::kmeans(centroids, data, this->n_clusters, 
             arma::keep_existing, this->n_iter, this->printSteps);
             break;
         case Initiator::RANDOM:
         default:
-            arma::kmeans(centroids, this->m_data, this->n_clusters,
+            arma::kmeans(centroids, data, this->n_clusters,
             arma::random_subset, this->n_iter, this->printSteps);
             break;
     }
@@ -199,7 +207,7 @@ cluster_data KmeansNANI::KmeansClustering(Initiator initiator)
     //      corresponding group the point is connected to
     // - Centroid matrix
     // - number of max iterations
-    vector labels = GenerateLabels(this->m_data, centroids);
+    vector labels = GenerateLabels(data, centroids);
     
     return cluster_data(labels, centroids, this->n_iter);
 }
