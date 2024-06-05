@@ -101,7 +101,7 @@ template <typename T> void OutputResults(
 }
 
 int main(int argc, char *argv[]) {
-    char file[] = "./examples/backbone.npy";
+    char file[] = "../examples/backbone.npy";
     float result;
     float condensed_result;
     int n_atoms = 10;

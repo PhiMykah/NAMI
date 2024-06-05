@@ -2,7 +2,7 @@
 
 int main(int argc, char const *argv[])
 {
-    char file[] = "./examples/backbone.npy";
+    char file[] = "../examples/backbone.npy";
     int n_atoms = 10;
 
     Matrix matrix = loadNPYFile(file);

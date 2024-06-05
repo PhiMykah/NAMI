@@ -54,7 +54,7 @@ OBJ_FILES = $(DT)/$(DC).o \
 all: main clean
 
 main: $(BTS)
-	$(CXX) $(CXXFLAGS) $(OBJ_FILES) main.cpp -o main
+	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/main.cpp -o main
 
 clean:
 	cd $(DT) && rm -f *.o
@@ -67,15 +67,18 @@ clean:
 # 	$(CXX) $(CXXFLAGS) $(DT)/$(DC).o data_containers_test.cpp -o datatest
 
 logictest: $(BTS)
-	$(CXX) $(CXXFLAGS) $(OBJ_FILES) logictest.cpp -o logictest
+	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/logictest.cpp -o logictest
 
 iotest: $(DC).o $(READ).o
-	$(CXX) $(CXXFLAGS) $(DT)/$(DC).o $(IO)/$(READ).o io_test.cpp -o io_test
+	$(CXX) $(CXXFLAGS) $(DT)/$(DC).o $(IO)/$(READ).o Tests/io_test.cpp -o io_test
 	make clean
 
 kmeanstest: $(BTS)
-	$(CXX) $(CXXFLAGS) $(OBJ_FILES) kmeans_test.cpp -o kmeans_test
+	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/kmeans_test.cpp -o kmeans_test
 	
+alatest: $(BTS)
+	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/ala10_test.cpp -o ala10_test
+
 # Data Types and Containers Object
 $(DC).o:
 	$(CXX) $(CXXFLAGS) -c Datatypes/$(DC).cpp -o Datatypes/$(DC).o

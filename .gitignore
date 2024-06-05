@@ -55,6 +55,7 @@ datatest
 io_test
 logictest
 kmeans_test
+ala10_test
 
 # Testing Files
 output/*

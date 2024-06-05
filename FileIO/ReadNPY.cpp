@@ -13,7 +13,7 @@ std::string toString(char* a, int size){
     return s;
 }
 
-Matrix loadNPYFile(char file_path[]){
+Matrix loadNPYFile(const char file_path[]){
     std::ifstream array_file;
     // fprintf(stderr, "Opening %s\n", file_path);
 

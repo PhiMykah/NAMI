@@ -1,9 +1,9 @@
 #include "main.h"
-#include "Modules/kmeansNANI/nani.h"
+#include "../Modules/kmeansNANI/nani.h"
 
 int main(int argc, char const *argv[])
 {
-    char file[] = "./examples/backbone.npy";
+    char file[] = "../examples/backbone.npy";
     int n_clusters = 4;
     int n_atoms = 10;
     uword n_iter = 10;

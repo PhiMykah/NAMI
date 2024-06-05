@@ -40,7 +40,7 @@ struct HeaderNPY
     int N_size;
 };
 
-Matrix loadNPYFile(char file_path[]);
+Matrix loadNPYFile(const char file_path[]);
 
 HeaderNPY parseHeader(std::string header, int header_size);
 
