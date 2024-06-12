@@ -2,18 +2,18 @@
 #include "../Modules/kmeansNANI/nani.h"
 
 char * outputFile(const char * a, int type) {
-    static char output[40];
+    static char output[60];
     switch (type)
     {
     case 1:
-        sprintf(output,"output/comp_sim_centroids_%s.csv", a);
+        sprintf(output,"output/ala10/NAMI/comp_sim_centroids_%s.csv", a);
         break;
     case 2:
-        sprintf(output,"output/div_sel_centroids_%s.csv", a);
+        sprintf(output,"output/ala10/NAMI/div_sel_centroids_%s.csv", a);
         break;
     case 0:
     default:
-        sprintf(output,"output/random_centroids_%s.csv", a);
+        sprintf(output,"output/ala10/NAMI/random_centroids_%s.csv", a);
         break;
     }
     
@@ -27,7 +27,7 @@ int main(int argc, char *argv[]) {
     float percent_trimmed = 0.8;
     int percentage = 75;
     int kmn_percentage = 10;
-    int n_iter = 10;
+    int n_iter = 33;
     Metric metric = Metric::MSD;
 
     int n_confirmations = 4;
@@ -52,7 +52,7 @@ int main(int argc, char *argv[]) {
         Matrix matrix = loadNPYFile(data[i]);
         printf("\nConfirmation: %s\n---------------------\n", confirmations[i]);
         printf("Extended Comparison\n");
-        printf("Result: %.2f\n", ExtendedComparison(matrix, metric, N, N_ATOMS, 0, WFactor::FRACTION));
+        printf("Result: %.4f\n", ExtendedComparison(matrix, metric, N, N_ATOMS, 0, WFactor::FRACTION));
 
         printf("Complementary Similarity\n");
         CalculateCompSim(matrix, metric, N_ATOMS).t().brief_print("Results:");

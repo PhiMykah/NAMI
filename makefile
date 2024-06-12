@@ -51,6 +51,10 @@ OBJ_FILES = $(DT)/$(DC).o \
 # MAKEFILE SCRIPTS
 # ----------------
 
+###########
+# Compile #
+###########
+
 all: main clean
 
 main: $(BTS)
@@ -78,6 +82,13 @@ kmeanstest: $(BTS)
 	
 alatest: $(BTS)
 	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/ala10_test.cpp -o ala10_test
+
+carlos: $(BTS)
+	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/carlos_test.cpp -o carlos
+	
+###################
+# Compile Objects #
+###################
 
 # Data Types and Containers Object
 $(DC).o:

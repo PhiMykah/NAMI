@@ -3,8 +3,9 @@ from mdance import extended_comparison, calculate_comp_sim
 from mdance.tools.bts import calculate_medoid, calculate_outlier
 from mdance.tools.bts import trim_outliers, diversity_selection
 from mdance.tools.bts import align_traj, equil_align
+import os 
 
-FILE = "examples/backbone.npy"
+FILE = f"{os.environ['NAMI']}/examples/backbone.npy"
 metrics = ['MSD', 'BUB', 'Fai', 'Gle', 'Ja', 'JT', 'RT', 'RR', 'SM', 'SS1', 'SS2']
 
 def output_results(title : str, results : list):
