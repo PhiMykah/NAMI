@@ -1,5 +1,5 @@
-#include "main.h"
-#include "../Modules/kmeansNANI/nani.h"
+#include "../main.h"
+#include "../../Modules/kmeansNANI/nani.h"
 
 int main(int argc, char *argv[]) {
     char input_file[150];
@@ -34,9 +34,11 @@ int main(int argc, char *argv[]) {
                         n_atoms, init_type, n_iter);
 
             cluster_data data = mod.KmeansClustering();
-            scores results = mod.ComputeScores(data.labels);
-
             cluster_indices cluster_list = mod.CreateClusterList(data.labels);
+            scores results = mod.ComputeScores(data.centers, cluster_list);
+
+            data.centers.brief_print("Centers:");
+
             
             float msd_total = 0;
             float msd;

@@ -239,18 +239,21 @@ Parameters
 ----------
 data : Matrix (n_samples, n_features)
     Input dataset.
-labels : vector
-    Labels of the k-means algorithm.
+centers : Matrix
+    Matrix of center values (n_features, n_clusters)
+clusters : cluster_indices
+    Arma field of index vectors corresponding to each cluster
+    (n_clusters, variable length)
 
 Returns
 -------
 scores
     Struct containing the Davies-Bouldin and Calinski-Harabasz scores.
 */
-scores ComputeDataScores(Matrix data, vector labels)
+scores ComputeDataScores(Matrix data, Matrix centers, cluster_indices clusters)
 {
-    float ch_score = CalinskiHarabaszScore(data, labels);
-    float db_score = DaviesBouldinScore(data, labels);
+    float ch_score = CalinskiHarabaszScore(data, centers, clusters);
+    float db_score = DaviesBouldinScore(data, centers, clusters);
     return scores(ch_score, db_score);
 }
 
@@ -260,17 +263,20 @@ internal dataset.
 
 Parameters
 ----------
-labels : vector
-    Labels of the k-means algorithm.
+centers : Matrix
+    Matrix of center values (n_features, n_clusters)
+clusters : cluster_indices
+    Arma field of index vectors corresponding to each cluster
+    (n_clusters, variable length)
 
 Returns
 -------
 scores
     Struct containing the Davies-Bouldin and Calinski-Harabasz scores.
 */
-scores KmeansNANI::ComputeScores(vector labels)
+scores KmeansNANI::ComputeScores(Matrix centers, cluster_indices labels)
 {
-    return ComputeDataScores(this->m_data, labels);
+    return ComputeDataScores(this->m_data, centers, labels);
 }
 
 /*
@@ -356,4 +362,91 @@ vector GenerateLabels(Matrix data, Matrix centroids)
     }
 
     return labelVector;
+}
+
+/*
+Calculates the Calinski and Harabaz score of the data with given label associations.
+
+Parameters
+----------
+data : Matrix
+    Input dataset.
+centers : Matrix
+    Matrix of centroid values (n_features, n_clusters)
+clusters : cluster_indices
+    Arma field of index vectors corresponding to each cluster
+    (n_clusters, variable length)
+
+Returns
+-------
+float
+    Calculated Calinski and Harabasz Score.
+*/
+float CalinskiHarabaszScore(Matrix data, Matrix centers, cluster_indices clusters)
+{
+    float n = data.n_rows;
+    float k = centers.n_cols;
+    float bcss = BCSS(centers, clusters);
+    float wcss = WCSS(data, clusters);
+    
+    return (bcss/(k-1))/(wcss/(n-k));
+}
+
+/*
+Calculates the Davies-Bouldin score of the data with given label associations.
+
+Parameters
+----------
+data : Matrix
+    Input dataset.
+labels : vector
+    Labels of the k-means algorithm.
+
+Returns
+-------
+float
+    Calculated Davies-Bouldin Score.
+*/
+float DaviesBouldinScore(Matrix data, Matrix centers, cluster_indices clusters)
+{
+    return 0.0f;
+}
+
+/*
+Calculates the between cluster sum of squares value for centroids.
+
+Parameters
+----------
+centroids : Matrix
+    Centroids matrix (n_features, n_clusters)
+clusters : cluster_indices
+    Arma field of index vectors corresponding to each cluster
+    (n_clusters, variable length)
+
+Returns
+-------
+arma::accu(sum)
+    BCSS summed across all features
+*/
+float BCSS(Matrix centroids, cluster_indices clusters)
+{
+    vector avg = arma::sum(centroids, ROW);
+    vector sum;
+    uword cluster_points;
+    for (uword i = 0; i < centroids.n_cols; i++) {
+        cluster_points = clusters(i).size();
+        // (√(c_i - c)²)²
+        vector euc_distance = arma::pow(arma::sqrt(arma::pow((centroids.col(i) - avg), 2)), 2);
+        if (i == 0) {
+            sum = cluster_points * euc_distance;
+        } else {
+            sum += cluster_points * euc_distance;
+        }
+    }
+    return arma::accu(sum);
+}
+
+float WCSS(Matrix data, cluster_indices clusters)
+{
+    return 1.0f;
 }

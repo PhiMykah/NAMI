@@ -83,9 +83,12 @@ kmeanstest: $(BTS)
 alatest: $(BTS)
 	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/ala10_test.cpp -o ala10_test
 
+alascreen: $(BTS)
+	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/Screens/ala10_screen.cpp -o ala10_screen
+
 carlos: $(BTS)
-	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/carlos_test.cpp -o carlos
-	
+	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/Screens/carlos_screen.cpp -o carlos
+
 ###################
 # Compile Objects #
 ###################

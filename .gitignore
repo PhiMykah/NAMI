@@ -57,6 +57,8 @@ logictest
 kmeans_test
 ala10_test
 carlos
+ala10_screen
+carlos_screen
 
 # Testing Files
 output/*

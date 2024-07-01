@@ -75,7 +75,7 @@ public:
 
     cluster_indices CreateClusterList(vector labels);
 
-    scores ComputeScores(vector labels);
+    scores ComputeScores(Matrix centers, cluster_indices clusters);
 
     void WriteCentroids(Matrix centers, std::string filename = "centroids.csv");
 
@@ -124,6 +124,11 @@ namespace mlpack {
         }
     };
 }
-scores ComputeDataScores(Matrix data, vector labels);
+scores ComputeDataScores(Matrix data, Matrix centers, cluster_indices clusters);
 vector GenerateLabels(Matrix data, Matrix centroids);
+
+float CalinskiHarabaszScore(Matrix data, Matrix centers, cluster_indices clusters);
+float DaviesBouldinScore(Matrix data, Matrix centers, cluster_indices clusters);
+float BCSS(Matrix centroids, cluster_indices clusters);
+float WCSS(Matrix data, cluster_indices clusters);
 #endif // !NANI_H

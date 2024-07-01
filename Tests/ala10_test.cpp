@@ -6,14 +6,14 @@ char * outputFile(const char * a, int type) {
     switch (type)
     {
     case 1:
-        sprintf(output,"output/ala10/NAMI/comp_sim_centroids_%s.csv", a);
+        sprintf(output,"output/ala10/NAMI/%s/random_centroids.csv", a);
         break;
     case 2:
-        sprintf(output,"output/ala10/NAMI/div_sel_centroids_%s.csv", a);
+        sprintf(output,"output/ala10/NAMI/%s/div_sel_centroids.csv", a);
         break;
     case 0:
     default:
-        sprintf(output,"output/ala10/NAMI/random_centroids_%s.csv", a);
+        sprintf(output,"output/ala10/NAMI/%s/comp_sim_centroids.csv", a);
         break;
     }
     
@@ -39,11 +39,11 @@ int main(int argc, char *argv[]) {
 
 
     int kmeans_test_count = 3;
-    std::string tests[kmeans_test_count] = {"****************\nRandom Initiator\n****************\n",
-                                    "******************\nComp Sim Initiator\n******************\n",
-                                   "********************\nDiv Select Initiator\n********************\n"};
+    std::string tests[kmeans_test_count] = {"******************\nComp Sim Initiator\n******************\n",
+                                            "****************\nRandom Initiator\n****************\n",
+                                            "********************\nDiv Select Initiator\n********************\n"};
 
-    Initiator initiators[kmeans_test_count] = {Initiator::RANDOM, Initiator::COMP_SIM, Initiator::DIV_SELECT};
+    Initiator initiators[kmeans_test_count] = {Initiator::COMP_SIM, Initiator::RANDOM, Initiator::DIV_SELECT};
 
     printf("Metric: ");
     std::cout << toStr(metric) << std::endl;

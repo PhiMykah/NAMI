@@ -58,8 +58,6 @@ enum class AlignMethod { UNI=0, KRON, UNIFORM, KRONECKER };
 // ****************************
 
 void sortRows(Matrix mat, float (*key)(rvector v), uword l_index, uword r_index, bool reverse = false); 
-float CalinskiHarabaszScore(Matrix data, vector labels);
-float DaviesBouldinScore(Matrix data, vector labels);
 
 // *********************
 // Other Data Containers
