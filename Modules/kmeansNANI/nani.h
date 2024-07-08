@@ -26,6 +26,8 @@ struct cluster_data
 // Initiators for the k-means algorithm
 enum class Initiator { COMP_SIM = 0, DIV_SELECT, KMEANS, VANILLA_KMEANS, RANDOM, };
 
+std::string toStr(Initiator);
+
 /*
 K-means algorithm with the N-Ary Natural Initialization (NANI).
     
@@ -83,6 +85,7 @@ public:
 
     bool printSteps = false;
 
+    unsigned short int getPercentage(){return this->percentage;};
 private:
     Matrix m_data;
     int n_clusters;
@@ -129,6 +132,4 @@ vector GenerateLabels(Matrix data, Matrix centroids);
 
 float CalinskiHarabaszScore(Matrix data, Matrix centers, cluster_indices clusters);
 float DaviesBouldinScore(Matrix data, Matrix centers, cluster_indices clusters);
-float BCSS(Matrix centroids, cluster_indices clusters);
-float WCSS(Matrix data, cluster_indices clusters);
 #endif // !NANI_H

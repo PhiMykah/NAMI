@@ -45,14 +45,15 @@ int main(int argc, char *argv[]) {
         for (Initiator init_type : init_types)
         {
         
-            for (int n_clusters = start_n_clusters; n_clusters < end_n_clusters; n_clusters++)
+            for (int n_clusters = start_n_clusters; n_clusters < end_n_clusters+1; n_clusters++)
             {
                 int n_iter = 20;
                 KmeansNANI mod(matrix, n_clusters, metric,
                             n_atoms, init_type, n_iter);
 
                 cluster_data data = mod.KmeansClustering();
-                scores results = mod.ComputeScores(data.labels);
+                cluster_indices cluster_list = mod.CreateClusterList(data.labels);
+                scores results = mod.ComputeScores(data.labels, cluster_list);
 
                 cluster_indices cluster_list = mod.CreateClusterList(data.labels);
                 

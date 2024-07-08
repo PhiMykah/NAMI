@@ -75,3 +75,35 @@ void sortRows(Matrix mat, float (*key)(rvector v), uword l_index, uword r_index,
         }
     }
 }
+
+double Euclidian(rvector A, rvector B){
+    // Distance = sqrt(dot(A, A) - 2 * dot(A, B) + dot(B, B))
+    return sqrt(arma::sum(arma::pow(A-B, 2)));
+}
+
+double Euclidian(vector A, vector B){
+    // Distance = sqrt(dot(A, A) - 2 * dot(A, B) + dot(B, B))
+    return sqrt(arma::sum(arma::pow(A-B, 2)));
+}
+
+arma::dvec MatEuclidian(Matrix A, vector B){
+    uword col_size = A.n_cols;
+    double dist;
+    arma::dvec total(col_size, arma::fill::zeros);
+    for (uword i = 0; i < col_size; i++) {
+        dist = Euclidian(A.col(i), B);
+        total(i) = dist;
+    }
+    return total;
+}
+
+arma::dvec MatEuclidian(Matrix A, rvector B){
+    uword row_size = A.n_rows;
+    double dist;
+    arma::dvec total(row_size, arma::fill::zeros);
+    for (uword i = 0; i < row_size; i++) {
+        dist = Euclidian(A.row(i), B);
+        total(i) = dist;
+    }
+    return total;
+}

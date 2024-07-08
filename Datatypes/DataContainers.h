@@ -58,6 +58,10 @@ enum class AlignMethod { UNI=0, KRON, UNIFORM, KRONECKER };
 // ****************************
 
 void sortRows(Matrix mat, float (*key)(rvector v), uword l_index, uword r_index, bool reverse = false); 
+double Euclidian(vector A, vector B);
+double Euclidian(rvector A, rvector B);
+arma::dvec MatEuclidian(Matrix A, vector B);
+arma::dvec MatEuclidian(Matrix A, rvector B);
 
 // *********************
 // Other Data Containers

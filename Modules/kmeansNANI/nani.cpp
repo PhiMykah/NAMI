@@ -1,4 +1,8 @@
 #include "nani.h"
+#include <chrono>
+
+using std::chrono::high_resolution_clock;
+using std::chrono::duration;
 
 /*
 Default Constructor the KmeansNANI class.
@@ -94,7 +98,12 @@ Matrix KmeansNANI::InitiateKmeans(Initiator initiator)
 
     Matrix top_cc_data = this->m_data.rows(total_comp_indices);
     
+    auto t1 = high_resolution_clock::now();
     initiators_indices = DiversitySelection(top_cc_data, 100, this->m_metric, DiversitySeed::MEDOID, this->n_atoms);
+    auto t2 = high_resolution_clock::now();
+    /* Getting number of milliseconds as a double. */
+    duration<double, std::milli> ms_double = t2 - t1;
+    std::cout << "Diversity Selection took " << ms_double.count() << "ms\n";
 
     Matrix result = top_cc_data.rows(initiators_indices);
 
@@ -121,21 +130,20 @@ cluster_data
         - Matrix of centroids
         - Maximum allowed iterations.
 */
-cluster_data KmeansNANI::KmeansClustering(Matrix initiators)
+cluster_data KmeansNANI::KmeansClustering(Matrix init_centroids)
 {
-    
-    Matrix centroids(initiators);
+    Matrix centroids = init_centroids.rows(0, this->n_clusters-1).t();
+    Matrix data = this->m_data.t();
 
-    arma::kmeans(centroids, this->m_data, this->n_clusters,
-                 arma::keep_existing, this->n_iter, this->printSteps);
-
+    arma::kmeans(centroids, data, this->n_clusters, 
+            arma::keep_existing, this->n_iter, this->printSteps);
 
     // Return:
     // - Matrix of this->m_data's shape where every point is the
     //      corresponding group the point is connected to
     // - Centroid matrix
     // - number of max iterations
-    vector labels = GenerateLabels(this->m_data, centroids);
+    vector labels = GenerateLabels(data, centroids);
 
     return cluster_data(labels, centroids, this->n_iter);
 }
@@ -226,7 +234,8 @@ cluster_indices KmeansNANI::CreateClusterList(vector labels)
 
     for (int i = 0; i < n_clusters; i++)
     {   
-        list(i) = arma::find(labels == i);
+        index_vec indicies = arma::find(labels == i);
+        list(i) = indicies;
     }
     
     return list;
@@ -384,12 +393,33 @@ float
 */
 float CalinskiHarabaszScore(Matrix data, Matrix centers, cluster_indices clusters)
 {
-    float n = data.n_rows;
-    float k = centers.n_cols;
-    float bcss = BCSS(centers, clusters);
-    float wcss = WCSS(data, clusters);
+    Matrix cluster_k;
+    rvector mean = arma::mean(data, COL);
+    rvector mean_k;
+    float bcss = 0.0f;
+    float wcss = 0.0f;
+
+    // Iterate over each cluster and calculate bcss and wcss
+    for (uword k = 0; k < centers.n_cols; k++)
+    {  
+        // Obtain data from clusters
+        cluster_k = data.rows(clusters(k));
+
+        // Calculate mean of current data clusters
+        mean_k = arma::mean(cluster_k, COL);
+
+        // Calcuate bcss
+        bcss += clusters(k).size() * arma::sum(arma::pow((mean_k - mean),2));
+
+        // Calculate wcss
+        wcss += arma::accu(arma::pow((cluster_k.each_row() - mean_k),2));
+    }
     
-    return (bcss/(k-1))/(wcss/(n-k));
+    if (wcss == 0) {
+        return 1.0;
+    }
+
+    return bcss * (data.n_rows - centers.n_cols) / (wcss * (centers.n_cols - 1));
 }
 
 /*
@@ -409,44 +439,76 @@ float
 */
 float DaviesBouldinScore(Matrix data, Matrix centers, cluster_indices clusters)
 {
+    /*
+    Examples
+    --------
+    >>> from sklearn.metrics import davies_bouldin_score
+    >>> X = [[0, 1], [1, 1], [3, 4]]
+    >>> labels = [0, 0, 1]
+    >>> davies_bouldin_score(X, labels)
+    0.12...
+    */
+
+    // Obtain submatrices based on labels
+    // X, labels = check_X_y(X, labels)
+    // le = LabelEncoder()
+    // labels = le.fit_transform(labels)
+    
+    uword n_features = data.n_cols;
+
+    // n_labels = len(le.classes_)
+    uword n_clusters = clusters.n_rows;
+
+    //
+    // intra_dists = np.zeros(n_labels)
+    std::vector<float>intra_distances(n_clusters);
+    
+    rvector centroid;
+    double average; 
+    // centroids = np.zeros((n_labels, len(X[0])), dtype=float)
+    Matrix centroids(n_clusters, n_features, arma::fill::zeros);
+    // for k in range(n_labels):
+    for (uword k = 0; k < n_clusters; k++){
+        // cluster_k = _safe_indexing(X, labels == k)
+        Matrix data_cluster = data.rows(clusters(k));
+        // centroid = cluster_k.mean(axis=0)
+        centroid = arma::mean(data_cluster, COL);
+        // centroids[k] = centroid
+        centroids.row(k) = centroid;
+
+        // intra_dists[k] = np.average(pairwise_distances(cluster_k, [centroid]))
+        
+        average = arma::mean(MatEuclidian(data_cluster, centroid));
+        intra_distances.at(k) = average;
+    }
+
+    // centroid_distances = pairwise_distances(centroids)
+    // Compare distances between 
+    // if np.allclose(intra_dists, 0) or np.allclose(centroid_distances, 0):
+        // return 0.0
+
+    // centroid_distances[centroid_distances == 0] = np.inf
+    // combined_intra_dists = intra_dists[:, None] + intra_dists
+    // scores = np.max(combined_intra_dists / centroid_distances, axis=1)
+    // return np.mean(scores)
     return 0.0f;
 }
 
-/*
-Calculates the between cluster sum of squares value for centroids.
-
-Parameters
-----------
-centroids : Matrix
-    Centroids matrix (n_features, n_clusters)
-clusters : cluster_indices
-    Arma field of index vectors corresponding to each cluster
-    (n_clusters, variable length)
-
-Returns
--------
-arma::accu(sum)
-    BCSS summed across all features
-*/
-float BCSS(Matrix centroids, cluster_indices clusters)
-{
-    vector avg = arma::sum(centroids, ROW);
-    vector sum;
-    uword cluster_points;
-    for (uword i = 0; i < centroids.n_cols; i++) {
-        cluster_points = clusters(i).size();
-        // (√(c_i - c)²)²
-        vector euc_distance = arma::pow(arma::sqrt(arma::pow((centroids.col(i) - avg), 2)), 2);
-        if (i == 0) {
-            sum = cluster_points * euc_distance;
-        } else {
-            sum += cluster_points * euc_distance;
-        }
+std::string toStr(Initiator init) {
+    // enum class Initiator { COMP_SIM = 0, DIV_SELECT, KMEANS, VANILLA_KMEANS, RANDOM, };
+    switch (init)
+    {
+    case Initiator::COMP_SIM:
+        return std::string("comp_sim");
+    case Initiator::DIV_SELECT:
+        return std::string("div_select");
+    case Initiator::KMEANS:
+        return std::string("kmeans");
+    case Initiator::VANILLA_KMEANS:
+        return std::string("vanilla_kmeans");
+    case Initiator::RANDOM:
+        return std::string("random");
+    default:
+        return std::string("initiator");
     }
-    return arma::accu(sum);
-}
-
-float WCSS(Matrix data, cluster_indices clusters)
-{
-    return 1.0f;
 }
