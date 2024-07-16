@@ -3,7 +3,7 @@
 
 int main(int argc, char const *argv[])
 {
-    char file[] = "../examples/backbone.npy";
+    char file[] = "examples/backbone.npy";
     int n_clusters = 4;
     int n_atoms = 10;
     uword n_iter = 10;
@@ -12,9 +12,9 @@ int main(int argc, char const *argv[])
     std::string tests[test_count] = {"****************\nRandom Initiator\n****************\n",
                                     "******************\nComp Sim Initiator\n******************\n",
                                    "********************\nDiv Select Initiator\n********************\n"};
-    std::string rc = "output/random_centroids.csv";
-    std::string csc = "output/comp_sim_centroids.csv";
-    std::string dsc = "output/div_sel_centroids.csv";
+    std::string rc = "output/backbone/random_centroids.csv";
+    std::string csc = "output/backbone/comp_sim_centroids.csv";
+    std::string dsc = "output/backbone/div_sel_centroids.csv";
     std::string filenames[test_count] = {rc, csc, dsc};
 
     Initiator initiators[test_count] = {Initiator::RANDOM, Initiator::COMP_SIM, Initiator::DIV_SELECT};

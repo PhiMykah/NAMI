@@ -70,6 +70,9 @@ clean:
 # datatest: $(DC).o
 # 	$(CXX) $(CXXFLAGS) $(DT)/$(DC).o data_containers_test.cpp -o datatest
 
+# Basic tests
+# -----------
+
 logictest: $(BTS)
 	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/logictest.cpp -o logictest
 
@@ -83,12 +86,18 @@ kmeanstest: $(BTS)
 alatest: $(BTS)
 	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/ala10_test.cpp -o ala10_test
 
+# Screen tests
+# ------------
+
 alascreen: $(BTS)
 	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/Screens/ala10_screen.cpp -o ala10_screen
 
 carlos: $(BTS)
 	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/Screens/carlos_screen.cpp -o carlos
 
+backbone: $(BTS)
+	$(CXX) $(CXXFLAGS) $(OBJ_FILES) Tests/Screens/backbone_screen.cpp -o backbone
+	
 ###################
 # Compile Objects #
 ###################
